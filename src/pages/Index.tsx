@@ -73,16 +73,20 @@ const Index = () => {
               >
                 Equipo
               </button>
-              <Button size="sm">Probar la plataforma</Button>
+              <Button size="sm" onClick={() => window.location.href = "/auth"}>
+                Probar la plataforma
+              </Button>
             </div>
 
-            <Button size="sm" className="md:hidden">Probar</Button>
+            <Button size="sm" className="md:hidden" onClick={() => window.location.href = "/auth"}>
+              Probar
+            </Button>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section id="inicio" className="pt-32 pb-20 px-4">
+      <section id="inicio" className="min-h-screen flex items-center justify-center px-4">
         <div className="container mx-auto max-w-5xl text-center">
           <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
             PictoAmigos
@@ -98,7 +102,7 @@ const Index = () => {
             <Button size="lg" onClick={() => scrollToSection("quienes-somos")}>
               Conocer PictoAmigos
             </Button>
-            <Button size="lg" variant="outline">
+            <Button size="lg" variant="outline" onClick={() => window.location.href = "/auth"}>
               Probar la plataforma
             </Button>
           </div>
@@ -389,7 +393,12 @@ const Index = () => {
             Estamos construyendo un futuro donde cada persona tiene voz, donde las barreras de comunicación 
             se transforman en puentes de conexión y comprensión.
           </p>
-          <Button size="lg" variant="outline" className="bg-secondary-foreground text-secondary hover:bg-secondary-foreground/90">
+          <Button
+            size="lg"
+            variant="outline"
+            className="bg-secondary-foreground text-secondary hover:bg-secondary-foreground/90"
+            onClick={() => window.location.href = "/auth"}
+          >
             Explorar PictoAmigos
           </Button>
         </div>
