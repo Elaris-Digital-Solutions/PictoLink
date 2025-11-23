@@ -87,7 +87,7 @@ const Index = () => {
       {/* Hero Section */}
       <section
         id="inicio"
-        className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center relative bg-white"
+        className="min-h-screen flex items-center justify-center px-4 bg-cover bg-[75%_center] md:bg-center relative bg-white"
         style={{ backgroundImage: "url('/hero-placeholder.png')" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-white/90"></div>

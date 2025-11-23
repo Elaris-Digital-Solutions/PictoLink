@@ -40,9 +40,9 @@ export function ChatSidebar() {
     <Sidebar className="border-r border-border">
       <SidebarContent>
         {/* Header con perfil */}
-        <div className="p-4 border-b border-border bg-secondary/20">
+        <div className="p-4 border-b border-border bg-[#FBF0ED]">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
               <AvatarFallback className="bg-primary text-primary-foreground">
                 {user?.name.charAt(0).toUpperCase()}
               </AvatarFallback>
@@ -52,7 +52,10 @@ export function ChatSidebar() {
                 <h2 className="font-semibold text-foreground truncate">
                   {user?.name}
                 </h2>
-                <p className="text-xs text-muted-foreground">En línea</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                  En línea
+                </p>
               </div>
             )}
           </div>

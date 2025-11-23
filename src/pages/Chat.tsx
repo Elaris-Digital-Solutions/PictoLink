@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MessageSquare, Send, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -83,23 +82,28 @@ const Chat = () => {
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full bg-background">
         <ChatSidebar />
-        
+
         <div className="flex flex-col flex-1 min-w-0">
           {/* Header */}
-          <header className="bg-secondary text-secondary-foreground px-4 py-3 flex items-center justify-between shadow-sm border-b border-border">
+          <header className="bg-white text-foreground px-4 py-3 flex items-center justify-between shadow-sm border-b border-border">
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="text-secondary-foreground" />
-              <MessageSquare className="h-6 w-6 text-primary" />
+              <SidebarTrigger className="text-foreground hover:bg-gray-100" />
+              <div className="h-10 w-10 rounded-full bg-[#FBF0ED] flex items-center justify-center">
+                <MessageSquare className="h-6 w-6 text-primary" />
+              </div>
               <div>
-                <h3 className="font-semibold">PictoLink Asistente</h3>
-                <p className="text-xs opacity-80">Siempre disponible</p>
+                <h3 className="font-semibold text-foreground">PictoLink Asistente</h3>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                  Siempre disponible
+                </p>
               </div>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleLogout}
-              className="text-secondary-foreground hover:bg-secondary-foreground/10"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
             >
               <LogOut className="h-5 w-5" />
             </Button>
@@ -111,24 +115,21 @@ const Chat = () => {
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${
-                    message.sender === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"
+                    }`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                      message.sender === "user"
+                    className={`max-w-[70%] rounded-2xl px-5 py-3 shadow-sm ${message.sender === "user"
                         ? "bg-primary text-primary-foreground rounded-br-sm"
-                        : "bg-muted text-foreground rounded-bl-sm"
-                    }`}
+                        : "bg-[#FBF0ED] text-foreground rounded-bl-sm border border-orange-100"
+                      }`}
                   >
                     <p className="text-sm">{message.text}</p>
                     <p
-                      className={`text-xs mt-1 ${
-                        message.sender === "user"
+                      className={`text-xs mt-1 ${message.sender === "user"
                           ? "text-primary-foreground/70"
                           : "text-muted-foreground"
-                      }`}
+                        }`}
                     >
                       {formatTime(message.timestamp)}
                     </p>
