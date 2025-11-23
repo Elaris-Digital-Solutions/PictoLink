@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageSquare, Volume2, Type, Users, Heart, Sparkles, Target, Lightbulb } from "lucide-react";
 import { useEffect, useState } from "react";
-import TeamSection from "@/components/NuestroEquipo";
+import NuestroEquipo from "@/components/NuestroEquipo";
 
 const Index = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,9 +32,8 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Navbar */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? "bg-background/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-background/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
+          }`}
       >
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -42,7 +41,7 @@ const Index = () => {
               <MessageSquare className="h-6 w-6 text-primary" />
               <span className="text-xl font-bold text-foreground">PictoLink</span>
             </div>
-            
+
             <div className="hidden md:flex items-center gap-6">
               <button
                 onClick={() => scrollToSection("inicio")}
@@ -101,7 +100,7 @@ const Index = () => {
             Comunicación accesible mediante pictogramas para todas las personas
           </p>
           <p className="text-lg text-muted-foreground mb-10 max-w-3xl mx-auto">
-            Una plataforma diseñada para personas con dificultades de comunicación, lenguaje o aprendizaje, 
+            Una plataforma diseñada para personas con dificultades de comunicación, lenguaje o aprendizaje,
             junto con sus familias, cuidadores y profesionales.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -123,19 +122,19 @@ const Index = () => {
           </h2>
           <div className="space-y-6 text-lg text-foreground/90 leading-relaxed">
             <p>
-              PictoLink nace de la necesidad de crear puentes de comunicación para personas que enfrentan 
-              barreras en el lenguaje verbal. Ya sea por condiciones del desarrollo, accidentes, ictus o 
-              cualquier otra circunstancia, millones de personas encuentran dificultades para expresarse y 
+              PictoLink nace de la necesidad de crear puentes de comunicación para personas que enfrentan
+              barreras en el lenguaje verbal. Ya sea por condiciones del desarrollo, accidentes, ictus o
+              cualquier otra circunstancia, millones de personas encuentran dificultades para expresarse y
               ser comprendidas.
             </p>
             <p>
-              Somos un equipo comprometido con el desarrollo de tecnología accesible que empodere a las personas 
-              a comunicarse de manera efectiva. Creemos que la comunicación es un derecho fundamental, y que la 
+              Somos un equipo comprometido con el desarrollo de tecnología accesible que empodere a las personas
+              a comunicarse de manera efectiva. Creemos que la comunicación es un derecho fundamental, y que la
               tecnología puede ser una herramienta poderosa para garantizar ese derecho.
             </p>
             <p>
-              Nuestra plataforma utiliza pictogramas como lenguaje visual universal, facilitando la expresión 
-              de ideas, necesidades y emociones de manera clara y comprensible para todos los involucrados en 
+              Nuestra plataforma utiliza pictogramas como lenguaje visual universal, facilitando la expresión
+              de ideas, necesidades y emociones de manera clara y comprensible para todos los involucrados en
               el proceso comunicativo.
             </p>
           </div>
@@ -159,7 +158,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Facilitar la comunicación efectiva mediante un sistema visual de pictogramas que permita 
+                  Facilitar la comunicación efectiva mediante un sistema visual de pictogramas que permita
                   expresar ideas, necesidades y emociones sin barreras lingüísticas.
                 </p>
               </CardContent>
@@ -172,7 +171,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Personas con dificultades de comunicación por desarrollo, accidentes o condiciones neurológicas, 
+                  Personas con dificultades de comunicación por desarrollo, accidentes o condiciones neurológicas,
                   así como sus familias, cuidadores, terapeutas del lenguaje y docentes.
                 </p>
               </CardContent>
@@ -185,7 +184,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Una plataforma integral que combina tecnología de traducción automática con un diseño 
+                  Una plataforma integral que combina tecnología de traducción automática con un diseño
                   centrado en la accesibilidad, creando una experiencia fluida y natural.
                 </p>
               </CardContent>
@@ -208,7 +207,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Sistema visual intuitivo que permite construir frases y expresar ideas complejas mediante 
+                  Sistema visual intuitivo que permite construir frases y expresar ideas complejas mediante
                   pictogramas organizados de forma clara y accesible.
                 </p>
               </CardContent>
@@ -221,7 +220,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Convierte texto escrito en secuencias de pictogramas y viceversa, facilitando la comunicación 
+                  Convierte texto escrito en secuencias de pictogramas y viceversa, facilitando la comunicación
                   entre usuarios y personas que utilizan lenguaje verbal.
                 </p>
               </CardContent>
@@ -234,7 +233,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Tecnología de voz que transforma mensajes hablados en pictogramas y genera audio a partir de 
+                  Tecnología de voz que transforma mensajes hablados en pictogramas y genera audio a partir de
                   secuencias visuales, creando una experiencia multimodal.
                 </p>
               </CardContent>
@@ -247,7 +246,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Adaptable a entornos familiares, terapéuticos y educativos, con funcionalidades específicas 
+                  Adaptable a entornos familiares, terapéuticos y educativos, con funcionalidades específicas
                   para cada necesidad y tipo de usuario.
                 </p>
               </CardContent>
@@ -263,10 +262,10 @@ const Index = () => {
             Para <span className="text-primary">quiénes</span>
           </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-3xl mx-auto">
-            PictoLink está diseñado para transformar la manera en que las personas se comunican, 
+            PictoLink está diseñado para transformar la manera en que las personas se comunican,
             conectan y comprenden.
           </p>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
@@ -275,7 +274,7 @@ const Index = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-muted-foreground">
-                  PictoLink ofrece autonomía y voz propia. Permite expresar necesidades, emociones y 
+                  PictoLink ofrece autonomía y voz propia. Permite expresar necesidades, emociones y
                   pensamientos de manera independiente, reduciendo la frustración y mejorando la calidad de vida.
                 </p>
                 <p className="text-muted-foreground">
@@ -291,7 +290,7 @@ const Index = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-muted-foreground">
-                  Facilitamos la comprensión mutua en el día a día. Las familias pueden comunicarse de manera 
+                  Facilitamos la comprensión mutua en el día a día. Las familias pueden comunicarse de manera
                   más efectiva con sus seres queridos, anticipar necesidades y fortalecer vínculos.
                 </p>
                 <p className="text-muted-foreground">
@@ -307,11 +306,11 @@ const Index = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-muted-foreground">
-                  Terapeutas del lenguaje, docentes y otros profesionales encuentran en PictoLink una 
+                  Terapeutas del lenguaje, docentes y otros profesionales encuentran en PictoLink una
                   herramienta flexible para el trabajo terapéutico y educativo.
                 </p>
                 <p className="text-muted-foreground">
-                  Permite crear materiales personalizados, hacer seguimiento del progreso y adaptar estrategias 
+                  Permite crear materiales personalizados, hacer seguimiento del progreso y adaptar estrategias
                   de intervención.
                 </p>
               </CardContent>
@@ -320,7 +319,10 @@ const Index = () => {
         </div>
       </section>
 
-   
+
+
+      {/* Nuestro Equipo */}
+      <NuestroEquipo />
 
       {/* CTA Final */}
       <section className="py-20 px-4 bg-secondary text-secondary-foreground">
@@ -329,7 +331,7 @@ const Index = () => {
             La comunicación es un derecho de <span className="text-primary">todos</span>
           </h2>
           <p className="text-lg mb-8 opacity-90 max-w-3xl mx-auto">
-            Estamos construyendo un futuro donde cada persona tiene voz, donde las barreras de comunicación 
+            Estamos construyendo un futuro donde cada persona tiene voz, donde las barreras de comunicación
             se transforman en puentes de conexión y comprensión.
           </p>
           <Button
