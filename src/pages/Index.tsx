@@ -61,10 +61,10 @@ const Index = () => {
                 Proyecto
               </button>
               <button
-                onClick={() => scrollToSection("para-quienes")}
+                onClick={() => scrollToSection("nuestros-usuarios")}
                 className="text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
-                Para quiénes
+                Nuestros Usuarios
               </button>
               <button
                 onClick={() => scrollToSection("equipo")}
@@ -205,7 +205,7 @@ const Index = () => {
       <section id="como-funciona" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <h3 className="text-2xl md:text-3xl font-bold text-center mb-12 text-foreground">
-            Cómo <span className="text-primary">funciona</span>
+            ¿Cómo <span className="text-primary">funciona?</span>
           </h3>
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
@@ -263,11 +263,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Para Quiénes */}
-      <section id="para-quienes" className="py-20 px-4 bg-[#FBF0ED]">
+      {/* Nuestros Usuarios */}
+      <section id="nuestros-usuarios" className="py-20 px-4 bg-[#FBF0ED]">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
-            Para <span className="text-primary">quiénes</span>
+            Nuestros <span className="text-primary">Usuarios</span>
           </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-3xl mx-auto">
             PictoLink está diseñado para transformar la manera en que las personas se comunican,
@@ -367,7 +367,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div>
+            <div className="md:justify-self-center">
               <h3 className="font-semibold mb-3 text-foreground">Navegación</h3>
               <div className="space-y-2">
                 <button
@@ -389,10 +389,10 @@ const Index = () => {
                   Proyecto
                 </button>
                 <button
-                  onClick={() => scrollToSection("para-quienes")}
+                  onClick={() => scrollToSection("nuestros-usuarios")}
                   className="block text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Para quiénes
+                  Nuestros Usuarios
                 </button>
                 <button
                   onClick={() => scrollToSection("equipo")}
