@@ -38,7 +38,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <MessageSquare className="h-6 w-6 text-primary" />
+              <img src="/logo.png" alt="PictoLink" className="h-8 w-auto" />
               <span className="text-xl font-bold text-foreground">PictoLink</span>
             </div>
 
@@ -89,7 +89,7 @@ const Index = () => {
       <section
         id="inicio"
         className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center relative bg-white"
-        style={{ backgroundImage: "url('/hero-placeholder.jpg')" }}
+        style={{ backgroundImage: "url('/hero-placeholder.png')" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-white/90"></div>
         <div className="container mx-auto max-w-5xl text-center relative z-10">
@@ -351,7 +351,7 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <MessageSquare className="h-6 w-6 text-primary" />
+                <img src="/logo.png" alt="PictoLink" className="h-8 w-auto" />
                 <span className="text-lg font-bold text-foreground">PictoLink</span>
               </div>
               <p className="text-sm text-muted-foreground">

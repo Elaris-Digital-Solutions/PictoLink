@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 const NuestroEquipo = () => {
 	const teamImages = [
-		{ src: "/team.webp", caption: "Equipo Elaris" },
+		{ src: "/team.webp", caption: "Elaris Digital Solutions" },
 		{ src: "/fabrizio.webp", caption: "Fabrizio Bussalleu" },
 		{ src: "/colfer.webp", caption: "Alejandro Colfer" },
 		{ src: "/jorge.webp", caption: "Jorge García" },
@@ -14,7 +14,7 @@ const NuestroEquipo = () => {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setCurrentImageIndex((prevIndex) => (prevIndex + 1) % teamImages.length);
-		}, 1000); // Change image every 1 second
+		}, 4000); // Change image every 1 second
 
 		return () => clearInterval(interval);
 	}, [teamImages.length]);
@@ -46,7 +46,7 @@ const NuestroEquipo = () => {
 					</div>
 
 					{/* Right Column: Image Carousel */}
-					<div className="relative h-[400px] w-full rounded-3xl overflow-hidden shadow-xl">
+					<div className="relative h-[500px] w-full rounded-3xl overflow-hidden shadow-xl bg-gray-100">
 						{teamImages.map((image, index) => (
 							<div
 								key={index}
@@ -56,7 +56,7 @@ const NuestroEquipo = () => {
 								<img
 									src={image.src}
 									alt={image.caption}
-									className="w-full h-full object-cover"
+									className="w-full h-full object-contain"
 								/>
 								{/* Caption Overlay */}
 								<div className="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-sm text-white p-4 rounded-xl">
