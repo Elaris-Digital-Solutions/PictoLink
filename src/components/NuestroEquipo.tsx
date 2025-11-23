@@ -46,7 +46,7 @@ const NuestroEquipo = () => {
 					</div>
 
 					{/* Right Column: Image Carousel */}
-					<div className="relative h-[500px] w-full rounded-3xl overflow-hidden shadow-xl bg-gray-100">
+					<div className="relative w-full aspect-video md:h-[500px] md:aspect-auto rounded-3xl overflow-hidden shadow-xl">
 						{teamImages.map((image, index) => (
 							<div
 								key={index}
@@ -56,7 +56,7 @@ const NuestroEquipo = () => {
 								<img
 									src={image.src}
 									alt={image.caption}
-									className="w-full h-full object-contain"
+									className="w-full h-full object-cover md:object-contain"
 								/>
 								{/* Caption Overlay */}
 								<div className="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-sm text-white p-4 rounded-xl">

@@ -138,11 +138,11 @@ const Index = () => {
                 el proceso comunicativo.
               </p>
             </div>
-            <div className="relative h-full min-h-[400px] rounded-2xl overflow-hidden shadow-lg">
+            <div className="relative w-full h-auto md:h-full md:min-h-[400px] rounded-2xl overflow-hidden shadow-lg">
               <img
                 src="/team.webp"
                 alt="Equipo PictoLink"
-                className="w-full h-full object-cover"
+                className="w-full h-auto md:h-full md:object-cover"
               />
             </div>
           </div>
