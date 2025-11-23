@@ -7,27 +7,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ChatSidebar } from "@/components/ChatSidebar";
-
-interface Message {
-  id: string;
-  text: string;
-  sender: "user" | "bot";
-  timestamp: Date;
-}
+import { useMessages } from "@/hooks/useMessages";
+import { useContacts } from "@/hooks/useContacts";
 
 const Chat = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      text: "¡Hola! Bienvenido a PictoLink. Estoy aquí para ayudarte con la comunicación mediante pictogramas.",
-      sender: "bot",
-      timestamp: new Date(),
-    },
-  ]);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [inputMessage, setInputMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { messages, sendMessage } = useMessages(selectedContactId);
+  const { contacts } = useContacts();
 
   useEffect(() => {
     if (!user) {
@@ -39,29 +29,15 @@ const Chat = () => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || !selectedContactId) return;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: inputMessage,
-      sender: "user",
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setInputMessage("");
-
-    // Simular respuesta del bot
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "Gracias por tu mensaje. En esta versión de demostración, pronto podrás comunicarte usando pictogramas. ¿En qué más puedo ayudarte?",
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+    try {
+      await sendMessage(inputMessage);
+      setInputMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
   };
 
   const handleLogout = async () => {
@@ -73,19 +49,24 @@ const Chat = () => {
     }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("es-ES", {
+  const formatTime = (date: string) => {
+    return new Date(date).toLocaleTimeString("es-ES", {
       hour: "2-digit",
       minute: "2-digit",
     });
   };
+
+  const selectedContact = contacts.find((c) => c.contact_id === selectedContactId);
 
   if (!user) return null;
 
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full bg-background">
-        <ChatSidebar />
+        <ChatSidebar
+          selectedContactId={selectedContactId}
+          onSelectContact={setSelectedContactId}
+        />
 
         <div className="flex flex-col flex-1 min-w-0">
           {/* Header */}
@@ -96,10 +77,18 @@ const Chat = () => {
                 <MessageSquare className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">PictoLink Asistente</h3>
+                <h3 className="font-semibold text-foreground">
+                  {selectedContact ? selectedContact.name : "PictoLink"}
+                </h3>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
-                  Siempre disponible
+                  {selectedContact ? (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                      En línea
+                    </>
+                  ) : (
+                    "Selecciona un contacto para chatear"
+                  )}
                 </p>
               </div>
             </div>
@@ -116,30 +105,54 @@ const Chat = () => {
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4 max-w-4xl mx-auto">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"
-                    }`}
-                >
+              {!selectedContactId ? (
+                <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
+                  <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    Bienvenido a PictoLink
+                  </h3>
+                  <p className="text-sm text-muted-foreground max-w-md">
+                    Selecciona un contacto del sidebar para comenzar a chatear, o añade
+                    nuevos contactos para expandir tu red de comunicación.
+                  </p>
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
+                  <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    Sin mensajes aún
+                  </h3>
+                  <p className="text-sm text-muted-foreground max-w-md">
+                    Envía el primer mensaje a {selectedContact?.name} para comenzar la
+                    conversación.
+                  </p>
+                </div>
+              ) : (
+                messages.map((message) => (
                   <div
-                    className={`max-w-[70%] rounded-2xl px-5 py-3 shadow-sm ${message.sender === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-sm"
-                      : "bg-[#FBF0ED] text-foreground rounded-bl-sm border border-orange-100"
+                    key={message.id}
+                    className={`flex ${message.sender_id === user.id ? "justify-end" : "justify-start"
                       }`}
                   >
-                    <p className="text-sm">{message.text}</p>
-                    <p
-                      className={`text-xs mt-1 ${message.sender === "user"
-                        ? "text-primary-foreground/70"
-                        : "text-muted-foreground"
+                    <div
+                      className={`max-w-[70%] rounded-2xl px-5 py-3 shadow-sm ${message.sender_id === user.id
+                          ? "bg-primary text-primary-foreground rounded-br-sm"
+                          : "bg-[#FBF0ED] text-foreground rounded-bl-sm border border-orange-100"
                         }`}
                     >
-                      {formatTime(message.timestamp)}
-                    </p>
+                      <p className="text-sm">{message.content}</p>
+                      <p
+                        className={`text-xs mt-1 ${message.sender_id === user.id
+                            ? "text-primary-foreground/70"
+                            : "text-muted-foreground"
+                          }`}
+                      >
+                        {formatTime(message.created_at)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
               <div ref={scrollRef} />
             </div>
           </ScrollArea>
@@ -148,20 +161,25 @@ const Chat = () => {
           <div className="bg-card border-t p-4">
             <div className="max-w-4xl mx-auto flex gap-2">
               <Input
-                placeholder="Escribe un mensaje..."
+                placeholder={
+                  selectedContactId
+                    ? "Escribe un mensaje..."
+                    : "Selecciona un contacto primero..."
+                }
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" && selectedContactId) {
                     handleSendMessage();
                   }
                 }}
                 className="flex-1"
+                disabled={!selectedContactId}
               />
               <Button
                 onClick={handleSendMessage}
                 size="icon"
-                disabled={!inputMessage.trim()}
+                disabled={!inputMessage.trim() || !selectedContactId}
               >
                 <Send className="h-4 w-4" />
               </Button>

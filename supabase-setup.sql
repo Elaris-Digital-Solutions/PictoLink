@@ -1,8 +1,18 @@
 -- ============================================
 -- SCRIPT SQL PARA SUPABASE - SISTEMA DE CONTACTOS Y MENSAJERÍA
+-- VERSIÓN ACTUALIZADA (Elimina políticas existentes primero)
 -- ============================================
 
--- 1. CREAR TABLA DE CONTACTOS
+-- 1. ELIMINAR POLÍTICAS EXISTENTES (si existen)
+-- ============================================
+drop policy if exists "Users can view their own contacts" on public.contacts;
+drop policy if exists "Users can insert their own contacts" on public.contacts;
+drop policy if exists "Users can delete their own contacts" on public.contacts;
+drop policy if exists "Users can view their messages" on public.messages;
+drop policy if exists "Users can send messages" on public.messages;
+drop policy if exists "Users can update received messages" on public.messages;
+
+-- 2. CREAR TABLA DE CONTACTOS
 -- ============================================
 create table if not exists public.contacts (
   id uuid default gen_random_uuid() primary key,
@@ -18,7 +28,7 @@ create table if not exists public.contacts (
 create index if not exists contacts_user_id_idx on public.contacts(user_id);
 create index if not exists contacts_contact_id_idx on public.contacts(contact_id);
 
--- 2. CREAR TABLA DE MENSAJES
+-- 3. CREAR TABLA DE MENSAJES
 -- ============================================
 create table if not exists public.messages (
   id uuid default gen_random_uuid() primary key,
@@ -34,12 +44,12 @@ create index if not exists messages_sender_id_idx on public.messages(sender_id);
 create index if not exists messages_receiver_id_idx on public.messages(receiver_id);
 create index if not exists messages_created_at_idx on public.messages(created_at desc);
 
--- 3. HABILITAR ROW LEVEL SECURITY (RLS)
+-- 4. HABILITAR ROW LEVEL SECURITY (RLS)
 -- ============================================
 alter table public.contacts enable row level security;
 alter table public.messages enable row level security;
 
--- 4. POLÍTICAS DE SEGURIDAD PARA CONTACTS
+-- 5. POLÍTICAS DE SEGURIDAD PARA CONTACTS
 -- ============================================
 
 -- Los usuarios pueden ver sus propios contactos
@@ -57,7 +67,7 @@ create policy "Users can delete their own contacts"
   on public.contacts for delete
   using (auth.uid() = user_id);
 
--- 5. POLÍTICAS DE SEGURIDAD PARA MESSAGES
+-- 6. POLÍTICAS DE SEGURIDAD PARA MESSAGES
 -- ============================================
 
 -- Los usuarios pueden ver mensajes donde son emisor o receptor
@@ -78,10 +88,17 @@ create policy "Users can update received messages"
   on public.messages for update
   using (auth.uid() = receiver_id);
 
--- 6. HABILITAR REALTIME PARA MENSAJES
+-- 7. HABILITAR REALTIME PARA MENSAJES
 -- ============================================
 -- Esto permite recibir mensajes en tiempo real
-alter publication supabase_realtime add table public.messages;
+-- Nota: Si ya está agregada, este comando fallará pero no es problema
+do $$
+begin
+  alter publication supabase_realtime add table public.messages;
+exception
+  when duplicate_object then
+    null; -- La tabla ya está en la publicación, no hacer nada
+end $$;
 
 -- ============================================
 -- FIN DEL SCRIPT
