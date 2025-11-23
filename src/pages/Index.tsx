@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, Volume2, Type, Users, Heart, Sparkles, Target, Lightbulb } from "lucide-react";
+import { MessageSquare, Volume2, Type, Users, Heart, Sparkles, Target, Lightbulb, Mail, Phone, Instagram, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import NuestroEquipo from "@/components/NuestroEquipo";
 
@@ -115,27 +115,36 @@ const Index = () => {
 
       {/* Quiénes Somos */}
       <section id="quienes-somos" className="py-20 px-4 bg-white">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
             ¿Quiénes <span className="text-primary">somos?</span>
           </h2>
-          <div className="space-y-6 text-lg text-foreground/90 leading-relaxed">
-            <p>
-              PictoLink nace de la necesidad de crear puentes de comunicación para personas que enfrentan
-              barreras en el lenguaje verbal. Ya sea por condiciones del desarrollo, accidentes, ictus o
-              cualquier otra circunstancia, millones de personas encuentran dificultades para expresarse y
-              ser comprendidas.
-            </p>
-            <p>
-              Somos un equipo comprometido con el desarrollo de tecnología accesible que empodere a las personas
-              a comunicarse de manera efectiva. Creemos que la comunicación es un derecho fundamental, y que la
-              tecnología puede ser una herramienta poderosa para garantizar ese derecho.
-            </p>
-            <p>
-              Nuestra plataforma utiliza pictogramas como lenguaje visual universal, facilitando la expresión
-              de ideas, necesidades y emociones de manera clara y comprensible para todos los involucrados en
-              el proceso comunicativo.
-            </p>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6 text-lg text-foreground/90 leading-relaxed">
+              <p>
+                PictoLink nace de la necesidad de crear puentes de comunicación para personas que enfrentan
+                barreras en el lenguaje verbal. Ya sea por condiciones del desarrollo, accidentes, ictus o
+                cualquier otra circunstancia, millones de personas encuentran dificultades para expresarse y
+                ser comprendidas.
+              </p>
+              <p>
+                Somos un equipo comprometido con el desarrollo de tecnología accesible que empodere a las personas
+                a comunicarse de manera efectiva. Creemos que la comunicación es un derecho fundamental, y que la
+                tecnología puede ser una herramienta poderosa para garantizar ese derecho.
+              </p>
+              <p>
+                Nuestra plataforma utiliza pictogramas como lenguaje visual universal, facilitando la expresión
+                de ideas, necesidades y emociones de manera clara y comprensible para todos los involucrados en
+                el proceso comunicativo.
+              </p>
+            </div>
+            <div className="relative h-full min-h-[400px] rounded-2xl overflow-hidden shadow-lg">
+              <img
+                src="/team.webp"
+                alt="Equipo PictoLink"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -396,9 +405,27 @@ const Index = () => {
 
             <div>
               <h3 className="font-semibold mb-3 text-foreground">Contacto</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-4">
                 ¿Tienes preguntas? Contáctanos para conocer más sobre PictoLink.
               </p>
+              <div className="space-y-3">
+                <a href="mailto:contact@elarisdigitalsolutions.com" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Mail className="h-4 w-4" />
+                  <span>contact@elarisdigitalsolutions.com</span>
+                </a>
+                <a href="tel:+51987450340" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Phone className="h-4 w-4" />
+                  <span>+51 987 450 340</span>
+                </a>
+                <a href="https://www.instagram.com/elarisdigitalsolutions" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Instagram className="h-4 w-4" />
+                  <span>@elarisdigitalsolutions</span>
+                </a>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4" />
+                  <span>Surco</span>
+                </div>
+              </div>
             </div>
           </div>
 
