@@ -64,9 +64,13 @@ const Chat = () => {
     }, 1000);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -120,15 +124,15 @@ const Chat = () => {
                 >
                   <div
                     className={`max-w-[70%] rounded-2xl px-5 py-3 shadow-sm ${message.sender === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-sm"
-                        : "bg-[#FBF0ED] text-foreground rounded-bl-sm border border-orange-100"
+                      ? "bg-primary text-primary-foreground rounded-br-sm"
+                      : "bg-[#FBF0ED] text-foreground rounded-bl-sm border border-orange-100"
                       }`}
                   >
                     <p className="text-sm">{message.text}</p>
                     <p
                       className={`text-xs mt-1 ${message.sender === "user"
-                          ? "text-primary-foreground/70"
-                          : "text-muted-foreground"
+                        ? "text-primary-foreground/70"
+                        : "text-muted-foreground"
                         }`}
                     >
                       {formatTime(message.timestamp)}

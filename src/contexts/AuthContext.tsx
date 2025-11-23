@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/lib/supabase";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface User {
   id: string;
@@ -8,62 +10,101 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, name?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem("PictoLink_user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Verificar sesión actual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata?.name || session.user.email!.split('@')[0],
+        });
+      }
+      setLoading(false);
+    });
+
+    // Escuchar cambios de autenticación
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata?.name || session.user.email!.split('@')[0],
+        });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signup = async (email: string, password: string, name: string) => {
-    // Simular registro - verificar si el usuario ya existe
-    const existingUsers = JSON.parse(localStorage.getItem("PictoLink_users") || "[]");
-    const userExists = existingUsers.find((u: any) => u.email === email);
-    
-    if (userExists) {
-      throw new Error("El usuario ya está registrado");
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message);
     }
 
-    const newUser = {
-      id: Date.now().toString(),
-      email,
-      password, // En producción NUNCA guardar contraseñas en texto plano
-      name,
-    };
-
-    existingUsers.push(newUser);
-    localStorage.setItem("PictoLink_users", JSON.stringify(existingUsers));
-
-    const userToSave = { id: newUser.id, email: newUser.email, name: newUser.name };
-    setUser(userToSave);
-    localStorage.setItem("PictoLink_user", JSON.stringify(userToSave));
+    // Si la confirmación de email está desactivada, el usuario se autenticará automáticamente
+    if (data.user && data.session) {
+      setUser({
+        id: data.user.id,
+        email: data.user.email!,
+        name,
+      });
+    }
   };
 
   const login = async (email: string, password: string) => {
-    const existingUsers = JSON.parse(localStorage.getItem("PictoLink_users") || "[]");
-    const foundUser = existingUsers.find(
-      (u: any) => u.email === email && u.password === password
-    );
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (!foundUser) {
-      throw new Error("Email o contraseña incorrectos");
+    if (error) {
+      throw new Error(error.message);
     }
 
-    const userToSave = { id: foundUser.id, email: foundUser.email, name: foundUser.name };
-    setUser(userToSave);
-    localStorage.setItem("PictoLink_user", JSON.stringify(userToSave));
+    if (data.user) {
+      setUser({
+        id: data.user.id,
+        email: data.user.email!,
+        name: data.user.user_metadata?.name || data.user.email!.split('@')[0],
+      });
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw new Error(error.message);
+    }
     setUser(null);
-    localStorage.removeItem("PictoLink_user");
   };
 
   return (
@@ -74,6 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signup,
         logout,
         isAuthenticated: !!user,
+        loading,
       }}
     >
       {children}
