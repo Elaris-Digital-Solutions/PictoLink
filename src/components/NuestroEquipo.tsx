@@ -20,7 +20,7 @@ const NuestroEquipo = () => {
 	}, [teamImages.length]);
 
 	return (
-		<section id="equipo" className="py-20 px-4 bg-[#FBF0ED]">
+		<section id="equipo" className="py-20 px-4 bg-white">
 			<div className="container mx-auto max-w-6xl">
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 					{/* Left Column: Text */}

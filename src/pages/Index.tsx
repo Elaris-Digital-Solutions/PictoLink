@@ -38,7 +38,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="PictoLink" className="h-8 w-auto" />
+              <img src="/logo.png" alt="PictoLink" className="h-12 w-auto" />
             </div>
 
             <div className="hidden md:flex items-center gap-6">
@@ -114,7 +114,7 @@ const Index = () => {
       </section>
 
       {/* Quiénes Somos */}
-      <section id="quienes-somos" className="py-20 px-4 bg-[#FBF0ED]">
+      <section id="quienes-somos" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
             ¿Quiénes <span className="text-primary">somos?</span>
@@ -141,7 +141,7 @@ const Index = () => {
       </section>
 
       {/* Conoce el Proyecto */}
-      <section id="proyecto" className="py-20 px-4 bg-white">
+      <section id="proyecto" className="py-20 px-4 bg-[#FBF0ED]">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
             Conoce el <span className="text-primary">proyecto</span>
@@ -193,7 +193,7 @@ const Index = () => {
       </section>
 
       {/* Cómo Funciona */}
-      <section id="como-funciona" className="py-20 px-4 bg-[#FBF0ED]">
+      <section id="como-funciona" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <h3 className="text-2xl md:text-3xl font-bold text-center mb-12 text-foreground">
             Cómo <span className="text-primary">funciona</span>
@@ -255,7 +255,7 @@ const Index = () => {
       </section>
 
       {/* Para Quiénes */}
-      <section id="para-quienes" className="py-20 px-4 bg-white">
+      <section id="para-quienes" className="py-20 px-4 bg-[#FBF0ED]">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
             Para <span className="text-primary">quiénes</span>
@@ -350,10 +350,11 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <img src="/logo.png" alt="PictoLink" className="h-8 w-auto" />
+                <img src="/elaris-upc.png" alt="Elaris UPC" className="h-16 w-auto" />
               </div>
               <p className="text-sm text-muted-foreground">
-                Comunicación accesible mediante pictogramas
+                Comunicación accesible mediante pictogramas para que todas las personas puedan hacerse escuchar.
+                Proyecto desarrollado por Elaris Digital Solutions en colaboración con la UPC.
               </p>
             </div>
 
@@ -402,7 +403,7 @@ const Index = () => {
           </div>
 
           <div className="pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} PictoLink. Todos los derechos reservados.</p>
+            <p>© {new Date().getFullYear()} PictoLink. Todos los derechos reservados. <a href="https://www.instagram.com/elarisdigitalsolutions" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors underline decoration-1 underline-offset-2">Desarrollado por Elaris Digital Solutions</a></p>
           </div>
         </div>
       </footer>
