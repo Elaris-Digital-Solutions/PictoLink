@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageSquare, Volume2, Type, Users, Heart, Sparkles, Target, Lightbulb } from "lucide-react";
 import { useEffect, useState } from "react";
-import TeamSection from "@/components/TeamSection";
+import TeamSection from "@/components/NuestroEquipo";
 
 const Index = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -40,7 +40,7 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageSquare className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold text-foreground">PictoAmigos</span>
+              <span className="text-xl font-bold text-foreground">PictoLink</span>
             </div>
             
             <div className="hidden md:flex items-center gap-6">
@@ -87,10 +87,15 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section id="inicio" className="min-h-screen flex items-center justify-center px-4">
-        <div className="container mx-auto max-w-5xl text-center">
+      <section
+        id="inicio"
+        className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center relative bg-white"
+        style={{ backgroundImage: "url('/hero-placeholder.jpg')" }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-white/90"></div>
+        <div className="container mx-auto max-w-5xl text-center relative z-10">
           <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
-            PictoAmigos
+            Picto<span className="text-primary">Link</span>
           </h1>
           <p className="text-xl md:text-2xl text-secondary font-medium mb-4">
             Comunicación accesible mediante pictogramas para todas las personas
@@ -101,7 +106,7 @@ const Index = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={() => scrollToSection("quienes-somos")}>
-              Conocer PictoAmigos
+              Conocer PictoLink
             </Button>
             <Button size="lg" variant="outline" onClick={() => window.location.href = "/auth"}>
               Probar la plataforma
@@ -111,14 +116,14 @@ const Index = () => {
       </section>
 
       {/* Quiénes Somos */}
-      <section id="quienes-somos" className="py-20 px-4 bg-muted/30">
+      <section id="quienes-somos" className="py-20 px-4 bg-[#FBF0ED]">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
-            ¿Quiénes somos?
+            ¿Quiénes <span className="text-primary">somos?</span>
           </h2>
           <div className="space-y-6 text-lg text-foreground/90 leading-relaxed">
             <p>
-              PictoAmigos nace de la necesidad de crear puentes de comunicación para personas que enfrentan 
+              PictoLink nace de la necesidad de crear puentes de comunicación para personas que enfrentan 
               barreras en el lenguaje verbal. Ya sea por condiciones del desarrollo, accidentes, ictus o 
               cualquier otra circunstancia, millones de personas encuentran dificultades para expresarse y 
               ser comprendidas.
@@ -138,16 +143,15 @@ const Index = () => {
       </section>
 
       {/* Conoce el Proyecto */}
-      <section id="proyecto" className="py-20 px-4">
+      <section id="proyecto" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
-            Conoce el proyecto
+            Conoce el <span className="text-primary">proyecto</span>
           </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             Una solución integral para la comunicación accesible
           </p>
-          
-          <div className="grid md:grid-cols-3 gap-8 mb-20">
+          <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
                 <Target className="h-10 w-10 text-primary mb-3" />
@@ -187,12 +191,15 @@ const Index = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
 
-          {/* Cómo Funciona */}
+      {/* Cómo Funciona */}
+      <section id="como-funciona" className="py-20 px-4 bg-[#FBF0ED]">
+        <div className="container mx-auto max-w-6xl">
           <h3 className="text-2xl md:text-3xl font-bold text-center mb-12 text-foreground">
-            Cómo funciona
+            Cómo <span className="text-primary">funciona</span>
           </h3>
-          
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -250,13 +257,13 @@ const Index = () => {
       </section>
 
       {/* Para Quiénes */}
-      <section id="para-quienes" className="py-20 px-4 bg-muted/30">
+      <section id="para-quienes" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
-            Para quiénes
+            Para <span className="text-primary">quiénes</span>
           </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-3xl mx-auto">
-            PictoAmigos está diseñado para transformar la manera en que las personas se comunican, 
+            PictoLink está diseñado para transformar la manera en que las personas se comunican, 
             conectan y comprenden.
           </p>
           
@@ -268,7 +275,7 @@ const Index = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-muted-foreground">
-                  PictoAmigos ofrece autonomía y voz propia. Permite expresar necesidades, emociones y 
+                  PictoLink ofrece autonomía y voz propia. Permite expresar necesidades, emociones y 
                   pensamientos de manera independiente, reduciendo la frustración y mejorando la calidad de vida.
                 </p>
                 <p className="text-muted-foreground">
@@ -300,7 +307,7 @@ const Index = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-muted-foreground">
-                  Terapeutas del lenguaje, docentes y otros profesionales encuentran en PictoAmigos una 
+                  Terapeutas del lenguaje, docentes y otros profesionales encuentran en PictoLink una 
                   herramienta flexible para el trabajo terapéutico y educativo.
                 </p>
                 <p className="text-muted-foreground">
@@ -330,7 +337,7 @@ const Index = () => {
       <section className="py-20 px-4 bg-secondary text-secondary-foreground">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            La comunicación es un derecho de todos
+            La comunicación es un derecho de <span className="text-primary">todos</span>
           </h2>
           <p className="text-lg mb-8 opacity-90 max-w-3xl mx-auto">
             Estamos construyendo un futuro donde cada persona tiene voz, donde las barreras de comunicación 
@@ -342,7 +349,7 @@ const Index = () => {
             className="bg-secondary-foreground text-secondary hover:bg-secondary-foreground/90"
             onClick={() => window.location.href = "/auth"}
           >
-            Explorar PictoAmigos
+            Explorar PictoLink
           </Button>
         </div>
       </section>
@@ -354,7 +361,7 @@ const Index = () => {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <MessageSquare className="h-6 w-6 text-primary" />
-                <span className="text-lg font-bold text-foreground">PictoAmigos</span>
+                <span className="text-lg font-bold text-foreground">PictoLink</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Comunicación accesible mediante pictogramas
@@ -400,13 +407,13 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-3 text-foreground">Contacto</h3>
               <p className="text-sm text-muted-foreground">
-                ¿Tienes preguntas? Contáctanos para conocer más sobre PictoAmigos.
+                ¿Tienes preguntas? Contáctanos para conocer más sobre PictoLink.
               </p>
             </div>
           </div>
 
           <div className="pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} PictoAmigos. Todos los derechos reservados.</p>
+            <p>© {new Date().getFullYear()} PictoLink. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>

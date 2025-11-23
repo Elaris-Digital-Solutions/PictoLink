@@ -22,7 +22,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: "¡Hola! Bienvenido a PictoAmigos. Estoy aquí para ayudarte con la comunicación mediante pictogramas.",
+      text: "¡Hola! Bienvenido a PictoLink. Estoy aquí para ayudarte con la comunicación mediante pictogramas.",
       sender: "bot",
       timestamp: new Date(),
     },
@@ -91,7 +91,7 @@ const Chat = () => {
               <SidebarTrigger className="text-secondary-foreground" />
               <MessageSquare className="h-6 w-6 text-primary" />
               <div>
-                <h3 className="font-semibold">PictoAmigos Asistente</h3>
+                <h3 className="font-semibold">PictoLink Asistente</h3>
                 <p className="text-xs opacity-80">Siempre disponible</p>
               </div>
             </div>

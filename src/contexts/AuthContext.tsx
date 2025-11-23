@@ -18,13 +18,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem("pictoamigos_user");
+    const savedUser = localStorage.getItem("PictoLink_user");
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
   const signup = async (email: string, password: string, name: string) => {
     // Simular registro - verificar si el usuario ya existe
-    const existingUsers = JSON.parse(localStorage.getItem("pictoamigos_users") || "[]");
+    const existingUsers = JSON.parse(localStorage.getItem("PictoLink_users") || "[]");
     const userExists = existingUsers.find((u: any) => u.email === email);
     
     if (userExists) {
@@ -39,15 +39,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     existingUsers.push(newUser);
-    localStorage.setItem("pictoamigos_users", JSON.stringify(existingUsers));
+    localStorage.setItem("PictoLink_users", JSON.stringify(existingUsers));
 
     const userToSave = { id: newUser.id, email: newUser.email, name: newUser.name };
     setUser(userToSave);
-    localStorage.setItem("pictoamigos_user", JSON.stringify(userToSave));
+    localStorage.setItem("PictoLink_user", JSON.stringify(userToSave));
   };
 
   const login = async (email: string, password: string) => {
-    const existingUsers = JSON.parse(localStorage.getItem("pictoamigos_users") || "[]");
+    const existingUsers = JSON.parse(localStorage.getItem("PictoLink_users") || "[]");
     const foundUser = existingUsers.find(
       (u: any) => u.email === email && u.password === password
     );
@@ -58,12 +58,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const userToSave = { id: foundUser.id, email: foundUser.email, name: foundUser.name };
     setUser(userToSave);
-    localStorage.setItem("pictoamigos_user", JSON.stringify(userToSave));
+    localStorage.setItem("PictoLink_user", JSON.stringify(userToSave));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("pictoamigos_user");
+    localStorage.removeItem("PictoLink_user");
   };
 
   return (

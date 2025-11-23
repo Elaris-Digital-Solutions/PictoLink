@@ -116,7 +116,7 @@ const Auth = () => {
         <CardHeader className="space-y-3">
           <div className="flex items-center justify-center gap-2 mb-2">
             <MessageSquare className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-foreground">PictoAmigos</span>
+            <span className="text-2xl font-bold text-foreground">PictoLink</span>
           </div>
           <CardTitle className="text-center">
             {isLogin ? "Iniciar sesión" : "Crear cuenta"}
@@ -124,7 +124,7 @@ const Auth = () => {
           <CardDescription className="text-center">
             {isLogin
               ? "Ingresa a tu cuenta para continuar"
-              : "Regístrate para comenzar a usar PictoAmigos"}
+              : "Regístrate para comenzar a usar PictoLink"}
           </CardDescription>
         </CardHeader>
         <CardContent>
