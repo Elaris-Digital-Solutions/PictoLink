@@ -320,18 +320,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Equipo */}
-      <section id="equipo" className="py-20 px-4">
-        <TeamSection
-          images={[
-            { src: "/team.webp", caption: "Equipo completo" },
-            { src: "/fabrizio.webp", caption: "Fabrizio Bussalleu" },
-            { src: "/jorge.webp", caption: "Jorge García" },
-            { src: "/colfer.webp", caption: "Alejandro Colfer" },
-            { src: "/delso.webp", caption: "Joaquín del Solar" },
-          ]}
-        />
-      </section>
+   
 
       {/* CTA Final */}
       <section className="py-20 px-4 bg-secondary text-secondary-foreground">
