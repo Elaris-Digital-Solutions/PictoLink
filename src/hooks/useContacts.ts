@@ -44,6 +44,13 @@ export function useContacts() {
             // Obtener información de cada contacto
             const contactsWithInfo = await Promise.all(
                 contactsData.map(async (contact) => {
+                    // Obtener datos del perfil del usuario
+                    const { data: profileData } = await supabase
+                        .from("profiles")
+                        .select("name")
+                        .eq("id", contact.contact_id)
+                        .single();
+
                     // Obtener último mensaje de la conversación
                     const { data: lastMessageData } = await supabase
                         .from("messages")
@@ -63,12 +70,10 @@ export function useContacts() {
                         .eq("receiver_id", user.id)
                         .eq("read", false);
 
-                    // Por ahora usamos el ID como nombre temporal
-                    // En una implementación completa, crearías una tabla de perfiles
                     return {
                         id: contact.id,
                         contact_id: contact.contact_id,
-                        name: `Usuario ${contact.contact_id.substring(0, 8)}`,
+                        name: profileData?.name || "Usuario",
                         email: "",
                         lastMessage: lastMessageData?.content,
                         lastMessageTime: lastMessageData?.created_at,
