@@ -39,7 +39,6 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <img src="/logo.png" alt="PictoLink" className="h-8 w-auto" />
-              <span className="text-xl font-bold text-foreground">PictoLink</span>
             </div>
 
             <div className="hidden md:flex items-center gap-6">
@@ -352,7 +351,6 @@ const Index = () => {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <img src="/logo.png" alt="PictoLink" className="h-8 w-auto" />
-                <span className="text-lg font-bold text-foreground">PictoLink</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Comunicación accesible mediante pictogramas
