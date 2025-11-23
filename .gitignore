@@ -23,6 +23,3 @@ dist-ssr
 *.sln
 *.sw?
 
-# Vite environment variables
-VITE_SUPABASE_URL=https://mfusmtehfopcuofyshxu.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mdXNtdGVoZm9wY3VvZnlzaHh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDA2NTgsImV4cCI6MjA3OTQxNjY1OH0.Syn1yhm2mZGOmOhWOuUfePy0zuOcvKFHT6Dsa5ZcGYA
