@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageSquare, Volume2, Type, Users, Heart, Sparkles, Target, Lightbulb } from "lucide-react";
 import { useEffect, useState } from "react";
+import TeamSection from "@/components/TeamSection";
 
 const Index = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -314,73 +315,15 @@ const Index = () => {
 
       {/* Equipo */}
       <section id="equipo" className="py-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
-            Equipo
-          </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-3xl mx-auto">
-            Un grupo multidisciplinario comprometido con la accesibilidad y la innovación tecnológica 
-            al servicio de la comunicación.
-          </p>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Fabrizio Bussalleu</CardTitle>
-                <CardDescription className="font-medium text-primary">
-                  Desarrollo e Innovación
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Especialista en arquitectura de sistemas y desarrollo de soluciones tecnológicas accesibles.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Jorge García</CardTitle>
-                <CardDescription className="font-medium text-primary">
-                  Inteligencia Artificial
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Experto en procesamiento de lenguaje natural y sistemas de traducción multimodal.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Alejandro Colfer</CardTitle>
-                <CardDescription className="font-medium text-primary">
-                  Experiencia de Usuario
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Diseñador centrado en la accesibilidad y la creación de interfaces intuitivas para todos.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Joaquín del Solar</CardTitle>
-                <CardDescription className="font-medium text-primary">
-                  Gestión y Estrategia
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Líder de proyecto enfocado en el impacto social y la sostenibilidad de la iniciativa.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        <TeamSection
+          images={[
+            { src: "/team.webp", caption: "Equipo completo" },
+            { src: "/fabrizio.webp", caption: "Fabrizio Bussalleu" },
+            { src: "/jorge.webp", caption: "Jorge García" },
+            { src: "/colfer.webp", caption: "Alejandro Colfer" },
+            { src: "/delso.webp", caption: "Joaquín del Solar" },
+          ]}
+        />
       </section>
 
       {/* CTA Final */}
