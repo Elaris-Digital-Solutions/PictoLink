@@ -82,25 +82,15 @@ const Auth = () => {
 
         await signup(formData.email, formData.password, formData.name);
 
-        // Verificar si el usuario necesita confirmar email
-        const { data: { session } } = await supabase.auth.getSession();
+        toast({
+          title: "¡Cuenta creada!",
+          description: "Por favor, revisa tu email para confirmar tu cuenta antes de iniciar sesión",
+          duration: 6000,
+        });
 
-        if (!session) {
-          // Email confirmation required
-          toast({
-            title: "¡Cuenta creada!",
-            description: "Por favor, revisa tu email para confirmar tu cuenta antes de iniciar sesión",
-            duration: 6000,
-          });
-          setIsLogin(true); // Cambiar a vista de login
-        } else {
-          // Email confirmation disabled, user is logged in
-          toast({
-            title: "¡Cuenta creada!",
-            description: "Tu cuenta ha sido creada correctamente",
-          });
-          navigate("/chat");
-        }
+        // Cambiar a vista de login para que el usuario inicie sesión después de verificar
+        setIsLogin(true);
+        setFormData({ email: formData.email, password: "", name: "", confirmPassword: "" });
       }
     } catch (error: any) {
       toast({
