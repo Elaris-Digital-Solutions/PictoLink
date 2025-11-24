@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Send, LogOut, Mic, MicOff } from 'lucide-react';
+import { MessageSquare, Send, LogOut, Mic, MicOff, Image } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -12,6 +12,7 @@ import { useContacts } from '@/hooks/useContacts';
 import { useSpeechRecognition, useSpeechSynthesis } from '@/hooks/useSpeech';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { searchPictograms, type Pictogram } from '@/lib/pictograms';
 
 const Chat = () => {
   const { user, logout } = useAuth();
@@ -20,6 +21,8 @@ const Chat = () => {
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [inputMessage, setInputMessage] = useState('');
   const [autoReadEnabled, setAutoReadEnabled] = useState(false);
+  const [pictograms, setPictograms] = useState<Pictogram[]>([]);
+  const [showPictograms, setShowPictograms] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef(0);
@@ -70,8 +73,34 @@ const Chat = () => {
       await sendMessage(inputMessage);
       setInputMessage('');
       resetTranscript();
+      setPictograms([]);
+      setShowPictograms(false);
     } catch (e) {
       console.error('Error sending message:', e);
+    }
+  };
+
+  const handleSearchPictograms = async () => {
+    if (!inputMessage.trim()) return;
+    try {
+      const results = await searchPictograms(inputMessage.trim());
+      setPictograms(results);
+      setShowPictograms(true);
+    } catch (e) {
+      console.error('Error searching pictograms:', e);
+    }
+  };
+
+  const handleSendPictogram = async (pictogram: Pictogram) => {
+    try {
+      const pictogramMessage = `[pictogram:${pictogram.id}:${pictogram.labels.es}]`;
+      await sendMessage(pictogramMessage);
+      setInputMessage('');
+      setPictograms([]);
+      setShowPictograms(false);
+      resetTranscript();
+    } catch (e) {
+      console.error('Error sending pictogram:', e);
     }
   };
 
@@ -99,6 +128,24 @@ const Chat = () => {
 
   const formatTime = (date: string) =>
     new Date(date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+  const renderMessageContent = (content: string) => {
+    const pictogramMatch = content.match(/^\[pictogram:(\d+):(.+)\]$/);
+    if (pictogramMatch) {
+      const [, id, label] = pictogramMatch;
+      return (
+        <div className="flex flex-col items-center gap-2">
+          <img
+            src={`https://api.arasaac.org/api/pictograms/${id}`}
+            alt={label}
+            className="w-16 h-16 object-contain"
+          />
+          <p className="text-xs text-center">{label}</p>
+        </div>
+      );
+    }
+    return <p className="text-sm">{content}</p>;
+  };
 
   const selectedContact = contacts.find((c) => c.contact_id === selectedContactId);
 
@@ -179,7 +226,7 @@ const Chat = () => {
                         : 'bg-[#FBF0ED] text-foreground rounded-bl-sm border border-orange-100'
                         }`}
                     >
-                      <p className="text-sm">{msg.content}</p>
+                      {renderMessageContent(msg.content)}
                       <p className={`text-xs mt-1 ${msg.sender_id === user.id ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                         {formatTime(msg.created_at)}
                       </p>
@@ -193,40 +240,68 @@ const Chat = () => {
 
           {/* Input area */}
           <div className="bg-card border-t p-4">
-            <div className="max-w-4xl mx-auto flex gap-2">
-              <Input
-                placeholder={
-                  speechError
-                    ? speechError
-                    : selectedContactId
-                      ? isListening
-                        ? 'Escuchando...'
-                        : 'Escribe un mensaje...'
-                      : 'Selecciona un contacto primero...'
-                }
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && selectedContactId) handleSendMessage();
-                }}
-                className="flex-1"
-                disabled={!selectedContactId}
-              />
-              {speechError && <p className="text-xs text-red-5 mt-1">{speechError}</p>}
-              {isSpeechRecognitionSupported && (
-                <Button
-                  onClick={toggleVoiceRecognition}
-                  size="icon"
-                  variant={isListening ? 'default' : 'outline'}
-                  disabled={!selectedContactId}
-                  className={isListening ? 'animate-pulse' : ''}
-                >
-                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                </Button>
+            <div className="max-w-4xl mx-auto flex flex-col gap-2">
+              {showPictograms && pictograms.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {pictograms.map((pictogram) => (
+                    <button
+                      key={pictogram.id}
+                      onClick={() => handleSendPictogram(pictogram)}
+                      className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors min-w-[80px]"
+                    >
+                      <img
+                        src={`https://api.arasaac.org/api/pictograms/${pictogram.id}`}
+                        alt={pictogram.labels.es}
+                        className="w-12 h-12 object-contain"
+                      />
+                      <p className="text-xs text-center truncate w-full">{pictogram.labels.es}</p>
+                    </button>
+                  ))}
+                </div>
               )}
-              <Button onClick={handleSendMessage} size="icon" disabled={!inputMessage.trim() || !selectedContactId}>
-                <Send className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Input
+                  placeholder={
+                    speechError
+                      ? speechError
+                      : selectedContactId
+                        ? isListening
+                          ? 'Escuchando...'
+                          : 'Escribe un mensaje...'
+                        : 'Selecciona un contacto primero...'
+                  }
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && selectedContactId) handleSendMessage();
+                  }}
+                  className="flex-1"
+                  disabled={!selectedContactId}
+                />
+                {speechError && <p className="text-xs text-red-5 mt-1">{speechError}</p>}
+                <Button
+                  onClick={handleSearchPictograms}
+                  size="icon"
+                  variant="outline"
+                  disabled={!inputMessage.trim() || !selectedContactId}
+                >
+                  <Image className="h-4 w-4" />
+                </Button>
+                {isSpeechRecognitionSupported && (
+                  <Button
+                    onClick={toggleVoiceRecognition}
+                    size="icon"
+                    variant={isListening ? 'default' : 'outline'}
+                    disabled={!selectedContactId}
+                    className={isListening ? 'animate-pulse' : ''}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                )}
+                <Button onClick={handleSendMessage} size="icon" disabled={!inputMessage.trim() || !selectedContactId}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
