@@ -11,37 +11,47 @@ export interface Pictogram {
   };
 }
 
-const ARASAAC_API_BASE = 'https://api.arasaac.org/api';
+const ARASAAC_API_BASE = 'https://api.arasaac.org/v1';
 
 export async function searchPictograms(query: string, lang: 'es' | 'en' = 'es'): Promise<Pictogram[]> {
   try {
-    const response = await fetch(`${ARASAAC_API_BASE}/pictograms/${lang}/search/${encodeURIComponent(query)}`);
-    if (!response.ok) {
-      throw new Error('Failed to search pictograms');
-    }
-    const ids: number[] = await response.json();
+    // Load local catalog data
+    const response = await fetch('/data/arasaac_catalog.jsonl');
+    const text = await response.text();
+    const lines = text.split('\n').filter(line => line.trim());
 
-    // Get details for each pictogram
-    const pictograms = await Promise.all(
-      ids.slice(0, 10).map(async (id) => {
-        const detailResponse = await fetch(`${ARASAAC_API_BASE}/pictograms/${id}`);
-        if (!detailResponse.ok) {
-          return null;
+    // Parse and filter pictograms
+    const filteredPictograms: Pictogram[] = [];
+
+    for (const line of lines) {
+      try {
+        const p = JSON.parse(line);
+        if (p.labels && p.labels[lang]) {
+          const label = p.labels[lang].toLowerCase();
+          const searchTerm = query.toLowerCase();
+
+          // Check if label or synonyms match
+          const matches = label.includes(searchTerm) ||
+            (p.synonyms?.[lang]?.some((syn: string) => syn.toLowerCase().includes(searchTerm)));
+
+          if (matches) {
+            filteredPictograms.push({
+              id: Number(p.id),
+              labels: p.labels,
+              image_urls: p.image_urls,
+            });
+
+            // Limit to 10 results
+            if (filteredPictograms.length >= 10) break;
+          }
         }
-        const data = await detailResponse.json();
-        return {
-          id: data._id,
-          labels: data.meaning,
-          image_urls: {
-            svg_color: data.svgColor || '',
-            png_color: data.pngColor || '',
-            detail: `https://arasaac.org/pictograms/${id}`,
-          },
-        } as Pictogram;
-      })
-    );
+      } catch (e) {
+        // Skip invalid lines
+        continue;
+      }
+    }
 
-    return pictograms.filter(Boolean) as Pictogram[];
+    return filteredPictograms;
   } catch (error) {
     console.error('Error searching pictograms:', error);
     return [];
@@ -49,5 +59,5 @@ export async function searchPictograms(query: string, lang: 'es' | 'en' = 'es'):
 }
 
 export function getPictogramImageUrl(id: number): string {
-  return `${ARASAAC_API_BASE}/pictograms/${id}`;
+  return `https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
 }

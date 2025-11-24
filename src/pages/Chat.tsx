@@ -93,7 +93,7 @@ const Chat = () => {
 
   const handleSendPictogram = async (pictogram: Pictogram) => {
     try {
-      const pictogramMessage = `[pictogram:${pictogram.id}:${pictogram.labels.es}]`;
+      const pictogramMessage = `[pictogram:${pictogram.id}:${pictogram.labels?.es || 'Pictograma'}]`;
       await sendMessage(pictogramMessage);
       setInputMessage('');
       setPictograms([]);
@@ -136,7 +136,7 @@ const Chat = () => {
       return (
         <div className="flex flex-col items-center gap-2">
           <img
-            src={`https://api.arasaac.org/api/pictograms/${id}`}
+            src={`https://static.arasaac.org/pictograms/${id}/${id}_500.png`}
             alt={label}
             className="w-16 h-16 object-contain"
           />
@@ -250,11 +250,11 @@ const Chat = () => {
                       className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors min-w-[80px]"
                     >
                       <img
-                        src={`https://api.arasaac.org/api/pictograms/${pictogram.id}`}
-                        alt={pictogram.labels.es}
+                        src={pictogram.image_urls.png_color}
+                        alt={pictogram.labels?.es || 'Pictograma'}
                         className="w-12 h-12 object-contain"
                       />
-                      <p className="text-xs text-center truncate w-full">{pictogram.labels.es}</p>
+                      <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
                     </button>
                   ))}
                 </div>
