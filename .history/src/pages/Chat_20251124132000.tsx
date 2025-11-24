@@ -393,53 +393,6 @@ const Chat = () => {
                   <div className="text-sm text-muted-foreground bg-green-50 p-3 rounded-lg">
                     🎨 Modo para personas que se comunican solo con pictogramas. Selecciona los pictogramas que quieres enviar.
                   </div>
-
-                  {/* Selector de categorías */}
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Categorías:</h4>
-                    <div className="flex gap-2 flex-wrap">
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          onClick={() => setSelectedCategory(category)}
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            selectedCategory === category
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-gray-100 hover:bg-gray-200'
-                          }`}
-                        >
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Pictogramas de la categoría seleccionada */}
-                  {selectedCategory && categoryPictograms[selectedCategory] && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Pictogramas de "{selectedCategory}":</h4>
-                      <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
-                        {categoryPictograms[selectedCategory].map((pictogram) => (
-                          <button
-                            key={pictogram.id}
-                            onClick={() => handleAddPictogram(pictogram)}
-                            className={`flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors ${
-                              selectedPictograms.some(p => p.id === pictogram.id)
-                                ? 'border-green-500 bg-green-50'
-                                : 'border-gray-200'
-                            }`}
-                          >
-                            <img
-                              src={pictogram.image_urls.png_color}
-                              alt={pictogram.labels?.es || 'Pictograma'}
-                              className="w-12 h-12 object-contain"
-                            />
-                            <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                   {/* Pictogramas seleccionados */}
                   {selectedPictograms.length > 0 && (
                     <div className="space-y-2">
@@ -462,6 +415,54 @@ const Chat = () => {
                               <X className="h-3 w-3" />
                             </Button>
                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Búsqueda de pictogramas */}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Busca pictogramas..."
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      className="flex-1"
+                      disabled={!selectedContactId}
+                    />
+                    <Button
+                      onClick={handleSearchPictograms}
+                      size="icon"
+                      variant="outline"
+                      disabled={!inputMessage.trim() || !selectedContactId}
+                    >
+                      <Image className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Resultados de búsqueda */}
+                  {showPictograms && pictograms.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Pictogramas encontrados:</h4>
+                      <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
+                        {pictograms.map((pictogram) => (
+                          <button
+                            key={pictogram.id}
+                            onClick={() => handleAddPictogram(pictogram)}
+                            className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors"
+                            disabled={selectedPictograms.some(p => p.id === pictogram.id)}
+                          >
+                            <img
+                              src={pictogram.image_urls.png_color}
+                              alt={pictogram.labels?.es || 'Pictograma'}
+                              className="w-12 h-12 object-contain"
+                            />
+                            <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
+                            {selectedPictograms.some(p => p.id === pictogram.id) && (
+                              <div className="absolute inset-0 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <Plus className="h-4 w-4 text-green-600" />
+                              </div>
+                            )}
+                          </button>
                         ))}
                       </div>
                     </div>

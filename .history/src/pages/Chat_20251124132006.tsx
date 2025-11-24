@@ -467,6 +467,54 @@ const Chat = () => {
                     </div>
                   )}
 
+                  {/* Búsqueda de pictogramas */}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Busca pictogramas..."
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      className="flex-1"
+                      disabled={!selectedContactId}
+                    />
+                    <Button
+                      onClick={handleSearchPictograms}
+                      size="icon"
+                      variant="outline"
+                      disabled={!inputMessage.trim() || !selectedContactId}
+                    >
+                      <Image className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Resultados de búsqueda */}
+                  {showPictograms && pictograms.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Pictogramas encontrados:</h4>
+                      <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
+                        {pictograms.map((pictogram) => (
+                          <button
+                            key={pictogram.id}
+                            onClick={() => handleAddPictogram(pictogram)}
+                            className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors"
+                            disabled={selectedPictograms.some(p => p.id === pictogram.id)}
+                          >
+                            <img
+                              src={pictogram.image_urls.png_color}
+                              alt={pictogram.labels?.es || 'Pictograma'}
+                              className="w-12 h-12 object-contain"
+                            />
+                            <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
+                            {selectedPictograms.some(p => p.id === pictogram.id) && (
+                              <div className="absolute inset-0 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <Plus className="h-4 w-4 text-green-600" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Botón enviar */}
                   <div className="flex justify-end">
                     <Button
