@@ -121,16 +121,6 @@ const Chat = () => {
     }
   };
 
-  const handleAddPictogram = (pictogram: Pictogram) => {
-    if (!selectedPictograms.find(p => p.id === pictogram.id)) {
-      setSelectedPictograms(prev => [...prev, pictogram]);
-    }
-  };
-
-  const handleRemovePictogram = (pictogramId: number) => {
-    setSelectedPictograms(prev => prev.filter(p => p.id !== pictogramId));
-  };
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -157,32 +147,6 @@ const Chat = () => {
     new Date(date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
   const renderMessageContent = (content: string) => {
-    // Check for compound pictograms first
-    const compoundMatch = content.match(/^\[pictograms:([\d,]+):(.+)\]$/);
-    if (compoundMatch) {
-      const [, idsString, labelsString] = compoundMatch;
-      const ids = idsString.split(',').map(id => parseInt(id));
-      const labels = labelsString.split(' ');
-
-      return (
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2 flex-wrap justify-center">
-            {ids.map((id, index) => (
-              <div key={id} className="flex flex-col items-center gap-1">
-                <img
-                  src={`https://static.arasaac.org/pictograms/${id}/${id}_500.png`}
-                  alt={labels[index] || `Pictograma ${id}`}
-                  className="w-12 h-12 object-contain"
-                />
-                <p className="text-xs text-center max-w-[60px] truncate">{labels[index] || `Pictograma ${id}`}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // Check for single pictogram
     const pictogramMatch = content.match(/^\[pictogram:(\d+):(.+)\]$/);
     if (pictogramMatch) {
       const [, id, label] = pictogramMatch;
@@ -293,165 +257,68 @@ const Chat = () => {
 
           {/* Input area */}
           <div className="bg-card border-t p-4">
-            <div className="max-w-4xl mx-auto">
-              <Tabs value={messageMode} onValueChange={(value) => setMessageMode(value as 'text' | 'pictograms')}>
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="text">Texto</TabsTrigger>
-                  <TabsTrigger value="pictograms">Pictogramas</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="text" className="space-y-4">
-                  {showPictograms && pictograms.length > 0 && (
-                    <div className="flex gap-2 overflow-x-auto pb-2">
-                      {pictograms.map((pictogram) => (
-                        <button
-                          key={pictogram.id}
-                          onClick={() => handleSendPictogram(pictogram)}
-                          className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors min-w-[80px]"
-                        >
-                          <img
-                            src={pictogram.image_urls.png_color}
-                            alt={pictogram.labels?.es || 'Pictograma'}
-                            className="w-12 h-12 object-contain"
-                          />
-                          <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder={
-                        speechError
-                          ? speechError
-                          : selectedContactId
-                            ? isListening
-                              ? 'Escuchando...'
-                              : 'Escribe un mensaje...'
-                            : 'Selecciona un contacto primero...'
-                      }
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && selectedContactId) handleSendMessage();
-                      }}
-                      className="flex-1"
-                      disabled={!selectedContactId}
-                    />
-                    {speechError && <p className="text-xs text-red-5 mt-1">{speechError}</p>}
-                    <Button
-                      onClick={handleSearchPictograms}
-                      size="icon"
-                      variant="outline"
-                      disabled={!inputMessage.trim() || !selectedContactId}
+            <div className="max-w-4xl mx-auto flex flex-col gap-2">
+              {showPictograms && pictograms.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {pictograms.map((pictogram) => (
+                    <button
+                      key={pictogram.id}
+                      onClick={() => handleSendPictogram(pictogram)}
+                      className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors min-w-[80px]"
                     >
-                      <Image className="h-4 w-4" />
-                    </Button>
-                    {isSpeechRecognitionSupported && (
-                      <Button
-                        onClick={toggleVoiceRecognition}
-                        size="icon"
-                        variant={isListening ? 'default' : 'outline'}
-                        disabled={!selectedContactId}
-                        className={isListening ? 'animate-pulse' : ''}
-                      >
-                        {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                      </Button>
-                    )}
-                    <Button onClick={handleSendMessage} size="icon" disabled={!inputMessage.trim() || !selectedContactId}>
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="pictograms" className="space-y-4">
-                  {/* Pictogramas seleccionados */}
-                  {selectedPictograms.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Mensaje compuesto:</h4>
-                      <div className="flex gap-2 flex-wrap p-3 bg-gray-50 rounded-lg">
-                        {selectedPictograms.map((pictogram) => (
-                          <div key={pictogram.id} className="flex items-center gap-2 bg-white p-2 rounded border">
-                            <img
-                              src={pictogram.image_urls.png_color}
-                              alt={pictogram.labels?.es || 'Pictograma'}
-                              className="w-8 h-8 object-contain"
-                            />
-                            <span className="text-sm">{pictogram.labels?.es || 'Sin etiqueta'}</span>
-                            <Button
-                              onClick={() => handleRemovePictogram(pictogram.id)}
-                              size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0"
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Búsqueda de pictogramas */}
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Busca pictogramas..."
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      className="flex-1"
-                      disabled={!selectedContactId}
-                    />
-                    <Button
-                      onClick={handleSearchPictograms}
-                      size="icon"
-                      variant="outline"
-                      disabled={!inputMessage.trim() || !selectedContactId}
-                    >
-                      <Image className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {/* Resultados de búsqueda */}
-                  {showPictograms && pictograms.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Pictogramas encontrados:</h4>
-                      <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
-                        {pictograms.map((pictogram) => (
-                          <button
-                            key={pictogram.id}
-                            onClick={() => handleAddPictogram(pictogram)}
-                            className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors"
-                            disabled={selectedPictograms.some(p => p.id === pictogram.id)}
-                          >
-                            <img
-                              src={pictogram.image_urls.png_color}
-                              alt={pictogram.labels?.es || 'Pictograma'}
-                              className="w-12 h-12 object-contain"
-                            />
-                            <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
-                            {selectedPictograms.some(p => p.id === pictogram.id) && (
-                              <div className="absolute inset-0 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center">
-                                <Plus className="h-4 w-4 text-green-600" />
-                              </div>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Botón enviar */}
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={selectedPictograms.length === 0 || !selectedContactId}
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      Enviar {selectedPictograms.length} pictograma{selectedPictograms.length !== 1 ? 's' : ''}
-                    </Button>
-                  </div>
-                </TabsContent>
-              </Tabs>
+                      <img
+                        src={pictogram.image_urls.png_color}
+                        alt={pictogram.labels?.es || 'Pictograma'}
+                        className="w-12 h-12 object-contain"
+                      />
+                      <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  placeholder={
+                    speechError
+                      ? speechError
+                      : selectedContactId
+                        ? isListening
+                          ? 'Escuchando...'
+                          : 'Escribe un mensaje...'
+                        : 'Selecciona un contacto primero...'
+                  }
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && selectedContactId) handleSendMessage();
+                  }}
+                  className="flex-1"
+                  disabled={!selectedContactId}
+                />
+                {speechError && <p className="text-xs text-red-5 mt-1">{speechError}</p>}
+                <Button
+                  onClick={handleSearchPictograms}
+                  size="icon"
+                  variant="outline"
+                  disabled={!inputMessage.trim() || !selectedContactId}
+                >
+                  <Image className="h-4 w-4" />
+                </Button>
+                {isSpeechRecognitionSupported && (
+                  <Button
+                    onClick={toggleVoiceRecognition}
+                    size="icon"
+                    variant={isListening ? 'default' : 'outline'}
+                    disabled={!selectedContactId}
+                    className={isListening ? 'animate-pulse' : ''}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                )}
+                <Button onClick={handleSendMessage} size="icon" disabled={!inputMessage.trim() || !selectedContactId}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
