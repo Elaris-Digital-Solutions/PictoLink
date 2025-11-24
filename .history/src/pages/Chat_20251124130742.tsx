@@ -321,9 +321,24 @@ const Chat = () => {
                 </TabsList>
 
                 <TabsContent value="text" className="space-y-4">
-                  <div className="text-sm text-muted-foreground bg-blue-50 p-3 rounded-lg">
-                    💡 Escribe una frase y se convertirá automáticamente en pictogramas. Ejemplo: "hola como estas" → 👋🤔😊
-                  </div>
+                  {showPictograms && pictograms.length > 0 && (
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {pictograms.map((pictogram) => (
+                        <button
+                          key={pictogram.id}
+                          onClick={() => handleSendPictogram(pictogram)}
+                          className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors min-w-[80px]"
+                        >
+                          <img
+                            src={pictogram.image_urls.png_color}
+                            alt={pictogram.labels?.es || 'Pictograma'}
+                            className="w-12 h-12 object-contain"
+                          />
+                          <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <Input
                       placeholder={
@@ -332,7 +347,7 @@ const Chat = () => {
                           : selectedContactId
                             ? isListening
                               ? 'Escuchando...'
-                              : 'Escribe una frase para convertir a pictogramas...'
+                              : 'Escribe un mensaje...'
                             : 'Selecciona un contacto primero...'
                       }
                       value={inputMessage}
@@ -344,6 +359,14 @@ const Chat = () => {
                       disabled={!selectedContactId}
                     />
                     {speechError && <p className="text-xs text-red-5 mt-1">{speechError}</p>}
+                    <Button
+                      onClick={handleSearchPictograms}
+                      size="icon"
+                      variant="outline"
+                      disabled={!inputMessage.trim() || !selectedContactId}
+                    >
+                      <Image className="h-4 w-4" />
+                    </Button>
                     {isSpeechRecognitionSupported && (
                       <Button
                         onClick={toggleVoiceRecognition}
@@ -362,9 +385,6 @@ const Chat = () => {
                 </TabsContent>
 
                 <TabsContent value="pictograms" className="space-y-4">
-                  <div className="text-sm text-muted-foreground bg-green-50 p-3 rounded-lg">
-                    🎨 Modo para personas que se comunican solo con pictogramas. Selecciona los pictogramas que quieres enviar.
-                  </div>
                   {/* Pictogramas seleccionados */}
                   {selectedPictograms.length > 0 && (
                     <div className="space-y-2">
