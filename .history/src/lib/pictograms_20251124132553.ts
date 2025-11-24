@@ -60,9 +60,8 @@ export async function searchPictograms(query: string, lang: 'es' | 'en' = 'es'):
 
 export function getPictogramCategories(): string[] {
   return [
-    'animal', 'food', 'person', 'family', 'emotion', 'action', 'object',
-    'place', 'transport', 'nature', 'leisure', 'work', 'health', 'communication',
-    'clothes', 'building facility', 'gastronomy', 'core vocabulary-object'
+    'person', 'family', 'animal', 'food', 'object', 'place', 'action', 'emotion',
+    'communication', 'transport', 'nature', 'leisure', 'work', 'health', 'education'
   ];
 }
 

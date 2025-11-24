@@ -387,6 +387,9 @@ const Chat = () => {
                 </TabsContent>
 
                 <TabsContent value="pictograms" className="space-y-4">
+                  <div className="text-sm text-muted-foreground bg-green-50 p-3 rounded-lg">
+                    🎨 Modo para personas que se comunican solo con pictogramas. Selecciona los pictogramas que quieres enviar.
+                  </div>
 
                   {/* Selector de categorías */}
                   <div className="space-y-2">
