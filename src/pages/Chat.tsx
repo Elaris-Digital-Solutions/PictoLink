@@ -32,6 +32,7 @@ const Chat = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef(0);
+  const pictogramMenuRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage } = useMessages(selectedContactId);
   const { contacts } = useContacts();
@@ -250,15 +251,37 @@ const Chat = () => {
 
   const selectedContact = contacts.find((c) => c.contact_id === selectedContactId);
 
+  // Close pictogram menu when clicking outside
+  const handleOutsideClick = (event: MouseEvent) => {
+    if (
+      pictogramMenuRef.current &&
+      !pictogramMenuRef.current.contains(event.target as Node)
+    ) {
+      setShowPictograms(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showPictograms) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [showPictograms]);
+
   if (!user) return null;
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-background">
+      <div className="flex flex-col min-h-screen w-full bg-background relative">
         <ChatSidebar selectedContactId={selectedContactId} onSelectContact={setSelectedContactId} />
         <div className="flex flex-col flex-1 min-w-0">
           {/* Header */}
-          <header className="bg-white text-foreground px-4 py-3 flex items-center justify-between shadow-sm border-b border-border">
+          <header className="bg-white text-foreground px-4 py-3 flex items-center justify-between shadow-sm border-b border-border fixed top-0 left-0 right-0 z-50">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="text-foreground hover:bg-gray-100" />
               <div className="h-10 w-10 rounded-full bg-[#FBF0ED] flex items-center justify-center">
@@ -300,7 +323,7 @@ const Chat = () => {
           </header>
 
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-4 mt-[64px] max-h-[calc(100vh-200px)]">
             <div className="space-y-4 max-w-4xl mx-auto">
               {!selectedContactId ? (
                 <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
@@ -339,8 +362,38 @@ const Chat = () => {
             </div>
           </ScrollArea>
 
+          {/* Pictogram Menu */}
+          {showPictograms && (
+            <div
+              ref={pictogramMenuRef}
+              className="absolute bottom-0 left-0 w-full h-[50%] bg-white shadow-lg border-t border-border z-50 overflow-y-auto"
+            >
+              <div className="p-4">
+                <h4 className="text-lg font-semibold mb-4">Selecciona un pictograma</h4>
+                <div className="grid grid-cols-4 gap-4">
+                  {pictograms.map((pictogram) => (
+                    <button
+                      key={pictogram.id}
+                      onClick={() => handleAddPictogram(pictogram)}
+                      className="flex flex-col items-center gap-2 p-2 border rounded-lg hover:bg-gray-100"
+                    >
+                      <img
+                        src={pictogram.image_urls.png_color}
+                        alt={pictogram.labels?.es || 'Pictograma'}
+                        className="w-16 h-16 object-contain"
+                      />
+                      <span className="text-sm text-center truncate">
+                        {pictogram.labels?.es || 'Sin etiqueta'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Input area */}
-          <div className="bg-card border-t p-4">
+          <div className="bg-card border-t p-4 sticky bottom-0">
             <div className="max-w-4xl mx-auto">
               <Tabs value={messageMode} onValueChange={(value) => setMessageMode(value as 'text' | 'pictograms')}>
                 <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -387,7 +440,6 @@ const Chat = () => {
                 </TabsContent>
 
                 <TabsContent value="pictograms" className="space-y-4">
-
                   {/* Selector de categorías */}
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Categorías:</h4>
