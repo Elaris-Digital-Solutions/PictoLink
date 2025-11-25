@@ -277,11 +277,11 @@ const Chat = () => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex flex-col min-h-screen w-full bg-background relative">
+      <div className="flex h-screen w-full bg-background overflow-hidden">
         <ChatSidebar selectedContactId={selectedContactId} onSelectContact={setSelectedContactId} />
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex flex-col flex-1 min-w-0 relative">
           {/* Header */}
-          <header className="bg-white text-foreground px-4 py-3 flex items-center justify-between shadow-sm border-b border-border fixed top-0 left-0 right-0 z-50">
+          <header className="bg-white text-foreground p-4 flex items-center justify-between shadow-sm border-b border-border flex-none z-10">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="text-foreground hover:bg-gray-100" />
               <div className="h-10 w-10 rounded-full bg-[#FBF0ED] flex items-center justify-center">
@@ -323,10 +323,10 @@ const Chat = () => {
           </header>
 
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4 mt-[64px] max-h-[calc(100vh-200px)]">
-            <div className="space-y-4 max-w-4xl mx-auto">
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-4 max-w-4xl mx-auto pb-4">
               {!selectedContactId ? (
-                <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
+                <div className="flex flex-col items-center justify-center h-full text-center py-20">
                   <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />
                   <h3 className="text-lg font-semibold text-foreground mb-2">Bienvenido a PictoLink</h3>
                   <p className="text-sm text-muted-foreground max-w-md">
@@ -334,7 +334,7 @@ const Chat = () => {
                   </p>
                 </div>
               ) : messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
+                <div className="flex flex-col items-center justify-center h-full text-center py-20">
                   <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />
                   <h3 className="text-lg font-semibold text-foreground mb-2">Sin mensajes aún</h3>
                   <p className="text-sm text-muted-foreground max-w-md">
@@ -362,38 +362,38 @@ const Chat = () => {
             </div>
           </ScrollArea>
 
-          {/* Pictogram Menu */}
-          {showPictograms && (
-            <div
-              ref={pictogramMenuRef}
-              className="absolute bottom-0 left-0 w-full h-[50%] bg-white shadow-lg border-t border-border z-50 overflow-y-auto"
-            >
-              <div className="p-4">
-                <h4 className="text-lg font-semibold mb-4">Selecciona un pictograma</h4>
-                <div className="grid grid-cols-4 gap-4">
-                  {pictograms.map((pictogram) => (
-                    <button
-                      key={pictogram.id}
-                      onClick={() => handleAddPictogram(pictogram)}
-                      className="flex flex-col items-center gap-2 p-2 border rounded-lg hover:bg-gray-100"
-                    >
-                      <img
-                        src={pictogram.image_urls.png_color}
-                        alt={pictogram.labels?.es || 'Pictograma'}
-                        className="w-16 h-16 object-contain"
-                      />
-                      <span className="text-sm text-center truncate">
-                        {pictogram.labels?.es || 'Sin etiqueta'}
-                      </span>
-                    </button>
-                  ))}
+          {/* Input area */}
+          <div className="bg-card border-t p-4 flex-none relative">
+            {/* Pictogram Menu */}
+            {showPictograms && (
+              <div
+                ref={pictogramMenuRef}
+                className="absolute bottom-full left-0 w-full h-[50vh] bg-white shadow-lg border-t border-border z-50 overflow-y-auto"
+              >
+                <div className="p-4">
+                  <h4 className="text-lg font-semibold mb-4">Selecciona un pictograma</h4>
+                  <div className="grid grid-cols-4 gap-4">
+                    {pictograms.map((pictogram) => (
+                      <button
+                        key={pictogram.id}
+                        onClick={() => handleAddPictogram(pictogram)}
+                        className="flex flex-col items-center gap-2 p-2 border rounded-lg hover:bg-gray-100"
+                      >
+                        <img
+                          src={pictogram.image_urls.png_color}
+                          alt={pictogram.labels?.es || 'Pictograma'}
+                          className="w-16 h-16 object-contain"
+                        />
+                        <span className="text-sm text-center truncate">
+                          {pictogram.labels?.es || 'Sin etiqueta'}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Input area */}
-          <div className="bg-card border-t p-4 sticky bottom-0">
             <div className="max-w-4xl mx-auto">
               <Tabs value={messageMode} onValueChange={(value) => setMessageMode(value as 'text' | 'pictograms')}>
                 <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -448,11 +448,10 @@ const Chat = () => {
                         <button
                           key={category}
                           onClick={() => setSelectedCategory(category)}
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            selectedCategory === category
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-gray-100 hover:bg-gray-200'
-                          }`}
+                          className={`px-3 py-1 rounded-full text-sm ${selectedCategory === category
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-gray-100 hover:bg-gray-200'
+                            }`}
                         >
                           {category.charAt(0).toUpperCase() + category.slice(1)}
                         </button>
@@ -469,11 +468,10 @@ const Chat = () => {
                           <button
                             key={pictogram.id}
                             onClick={() => handleAddPictogram(pictogram)}
-                            className={`flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors ${
-                              selectedPictograms.some(p => p.id === pictogram.id)
-                                ? 'border-green-500 bg-green-50'
-                                : 'border-gray-200'
-                            }`}
+                            className={`flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors ${selectedPictograms.some(p => p.id === pictogram.id)
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-200'
+                              }`}
                           >
                             <img
                               src={pictogram.image_urls.png_color}
@@ -487,11 +485,16 @@ const Chat = () => {
                     </div>
                   )}
                   {/* Pictogramas seleccionados */}
-                  {selectedPictograms.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Mensaje compuesto:</h4>
-                      <div className="flex gap-2 flex-wrap p-3 bg-gray-50 rounded-lg">
-                        {selectedPictograms.map((pictogram) => (
+                  {/* Pictogramas seleccionados */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Mensaje compuesto:</h4>
+                    <div className="flex gap-2 flex-wrap p-3 bg-gray-50 rounded-lg min-h-[60px] items-center">
+                      {selectedPictograms.length === 0 ? (
+                        <p className="text-sm text-muted-foreground italic w-full text-center">
+                          Selecciona pictogramas para formar una frase
+                        </p>
+                      ) : (
+                        selectedPictograms.map((pictogram) => (
                           <div key={pictogram.id} className="flex items-center gap-2 bg-white p-2 rounded border">
                             <img
                               src={pictogram.image_urls.png_color}
@@ -508,10 +511,10 @@ const Chat = () => {
                               <X className="h-3 w-3" />
                             </Button>
                           </div>
-                        ))}
-                      </div>
+                        ))
+                      )}
                     </div>
-                  )}
+                  </div>
 
                   {/* Botón enviar */}
                   <div className="flex justify-end">
@@ -529,7 +532,7 @@ const Chat = () => {
           </div>
         </div>
       </div>
-    </SidebarProvider>
+    </SidebarProvider >
   );
 };
 
