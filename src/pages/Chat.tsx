@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { searchPictograms, type Pictogram, getPictogramCategories, getPictogramsByCategory, CATEGORY_ICONS } from '@/lib/pictograms';
 import { convertTextToPictos, convertPictosToText, getAutocompleteSuggestions } from '@/lib/api';
 import { ArrowLeft } from 'lucide-react';
+import styles from './Chat.module.css';
 
 const Chat = () => {
   const { user, logout } = useAuth();
@@ -352,8 +353,8 @@ const Chat = () => {
           </header>
 
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4 max-w-4xl mx-auto pb-4">
+          <ScrollArea className={`flex-1 p-4 ${styles.chatBackground}`}>
+            <div className={`space-y-4 max-w-4xl mx-auto pb-4 ${styles.chatContent}`}>
               {!selectedContactId ? (
                 <div className="flex flex-col items-center justify-center h-full text-center py-20">
                   <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />

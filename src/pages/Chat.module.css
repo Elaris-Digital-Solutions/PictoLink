@@ -1,0 +1,22 @@
+/* Chat background styles */
+.chatBackground {
+  background-image: url('/fondo-chat.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.chatBackground::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.chatContent {
+  position: relative;
+  z-index: 10;
+}
