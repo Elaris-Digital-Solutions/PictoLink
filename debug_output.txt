@@ -1,0 +1,13 @@
+Catalog loaded. Size: 13032
+
+Testing term: 'come'
+Exact match: None
+Fuzzy match: [('cometa', 90), ('me', 90), ('mí', 90), ('c', 90), ('e', 90), ('m', 90), ('o', 90), ('comenzar', 90), ('comedor', 90), ('prohibido comer', 90)]
+
+'come' vs 'gel' scores:
+Ratio: 29
+Partial Ratio: 50
+Token Sort Ratio: 29
+'gel' in top fuzzy matches: False
+
+'gel' ID: 3335

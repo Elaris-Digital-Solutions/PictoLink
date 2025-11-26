@@ -149,6 +149,19 @@ async def text_to_pictos(request: TextRequest):
         'encantan': 'gustar',
         'gusta': 'gustar',       # Ensure correct verb form
         'gustan': 'gustar',
+        
+        # Common verb conjugations (safety net if lemmatization fails)
+        'come': 'comer',
+        'comes': 'comer',
+        'comen': 'comer',
+        'comemos': 'comer',
+        'bebe': 'beber',
+        'bebes': 'beber',
+        'beben': 'beber',
+        'duerme': 'dormir',
+        'duermen': 'dormir',
+        'juega': 'jugar',
+        'juegan': 'jugar',
     }
     
     # Fallback mappings: For words missing from catalog
