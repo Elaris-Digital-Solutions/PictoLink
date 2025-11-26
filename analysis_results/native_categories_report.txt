@@ -1,0 +1,53 @@
+CATEGORÍAS NATIVAS DE ARASAAC
+==================================================
+
+verb: 2645 pictogramas
+signaling system: 491 pictogramas
+qualifying adjective: 459 pictogramas
+professional: 423 pictogramas
+core vocabulary-communication: 360 pictogramas
+routine: 298 pictogramas
+land transport: 284 pictogramas
+disruptive behavior: 254 pictogramas
+country: 249 pictogramas
+commercial building: 214 pictogramas
+oviparous: 209 pictogramas
+christianity: 205 pictogramas
+work tool: 195 pictogramas
+usual verbs: 190 pictogramas
+flag: 189 pictogramas
+clothes: 186 pictogramas
+physical exercise: 183 pictogramas
+covid-19: 178 pictogramas
+sport material: 176 pictogramas
+hygiene product: 174 pictogramas
+human anatomy: 172 pictogramas
+feeling: 169 pictogramas
+gastronomy: 164 pictogramas
+terrestrial animal: 163 pictogramas
+building facility: 162 pictogramas
+wild animal: 162 pictogramas
+sanitary professional: 154 pictogramas
+cookery: 153 pictogramas
+educational material: 153 pictogramas
+sport modality: 153 pictogramas
+carnivorous: 151 pictogramas
+symptom: 151 pictogramas
+human response: 151 pictogramas
+number: 146 pictogramas
+construction: 145 pictogramas
+day hours: 145 pictogramas
+family: 144 pictogramas
+health personnel: 144 pictogramas
+expression: 143 pictogramas
+numeral adjective: 142 pictogramas
+beverage: 141 pictogramas
+electrical appliance: 141 pictogramas
+core vocabulary-living being: 138 pictogramas
+core vocabulary-knowledge: 138 pictogramas
+corporal hygiene: 135 pictogramas
+utensil: 134 pictogramas
+medical procedure: 134 pictogramas
+core vocabulary-object: 133 pictogramas
+educational task: 133 pictogramas
+accessories: 130 pictogramas

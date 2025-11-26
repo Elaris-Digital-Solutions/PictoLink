@@ -1,0 +1,357 @@
+MAPEO A NUEVAS CATEGORÍAS
+==================================================
+
+
+ANIMALES (Prioridad: 3, Límite: 30)
+--------------------------------------------------
+Pictogramas encontrados: 30
+
+  1. ID 2294: caballo (keyword_match)
+  2. ID 2327: cerdo (keyword_match)
+  3. ID 2351: conejo (keyword_match)
+  4. ID 2372: elefante (keyword_match)
+  5. ID 2406: gato (keyword_match)
+  6. ID 2449: león (keyword_match)
+  7. ID 2489: oveja (keyword_match)
+  8. ID 2490: pájaro (keyword_match)
+  9. ID 2517: perro (keyword_match)
+  10. ID 2520: pez (keyword_match)
+  11. ID 2546: ratón (keyword_match)
+  12. ID 2609: vaca (keyword_match)
+  13. ID 2820: ratón (keyword_match)
+  14. ID 2843: pez espada (keyword_match)
+  15. ID 3003: camaleón (keyword_match)
+  16. ID 3021: a (keyword_match)
+  17. ID 3023: b (keyword_match)
+  18. ID 3024: c (keyword_match)
+  19. ID 3025: d (keyword_match)
+  20. ID 3026: e (keyword_match)
+  ... y 10 más
+
+BAÑO (Prioridad: 1, Límite: 15)
+--------------------------------------------------
+Pictogramas encontrados: 15
+
+  1. ID 2275: bebé (known_id)
+  2. ID 2370: ducha (keyword_match)
+  3. ID 2371: duchar (keyword_match)
+  4. ID 2430: váter (keyword_match)
+  5. ID 2443: enjabonar las manos (keyword_match)
+  6. ID 2494: pan (keyword_match)
+  7. ID 2498: papelera (keyword_match)
+  8. ID 2593: toalla (keyword_match)
+  9. ID 2861: papelera (keyword_match)
+  10. ID 2862: papel higiénico (keyword_match)
+  11. ID 2863: pañal (keyword_match)
+  12. ID 2964: jabón (keyword_match)
+  13. ID 3021: a (keyword_match)
+  14. ID 3023: b (keyword_match)
+  15. ID 3024: c (keyword_match)
+
+COMIDA (Prioridad: 1, Límite: 40)
+--------------------------------------------------
+Pictogramas encontrados: 40
+
+  1. ID 2248: agua (keyword_match)
+  2. ID 2259: arroz con tomate (keyword_match)
+  3. ID 2275: bebé (keyword_match)
+  4. ID 2276: beber (keyword_match)
+  5. ID 2296: café (keyword_match)
+  6. ID 2297: cafetera (keyword_match)
+  7. ID 2316: carne (keyword_match)
+  8. ID 2349: comer (keyword_match)
+  9. ID 2445: leche (keyword_match)
+  10. ID 2462: manzana (keyword_match)
+  11. ID 2494: pan (keyword_match)
+  12. ID 2495: pandero (keyword_match)
+  13. ID 2496: paño de cocina (keyword_match)
+  14. ID 2500: paraguas (keyword_match)
+  15. ID 2530: plátano (keyword_match)
+  16. ID 2533: pollo (keyword_match)
+  17. ID 2534: muslo de pollo (keyword_match)
+  18. ID 2564: pandereta (keyword_match)
+  19. ID 2565: pantalón (keyword_match)
+  20. ID 2573: sopa (keyword_match)
+  ... y 20 más
+
+DEPORTES (Prioridad: 3, Límite: 20)
+--------------------------------------------------
+Pictogramas encontrados: 20
+
+  1. ID 2269: balón (keyword_match)
+  2. ID 2439: jugar (keyword_match)
+  3. ID 2514: pelota de tenis (keyword_match)
+  4. ID 2719: correr (keyword_match)
+  5. ID 2851: pelo (keyword_match)
+  6. ID 3021: a (keyword_match)
+  7. ID 3023: b (keyword_match)
+  8. ID 3024: c (keyword_match)
+  9. ID 3025: d (keyword_match)
+  10. ID 3026: e (keyword_match)
+  11. ID 3027: f (keyword_match)
+  12. ID 3028: g (keyword_match)
+  13. ID 3030: i (keyword_match)
+  14. ID 3031: j (keyword_match)
+  15. ID 3033: l (keyword_match)
+  16. ID 3035: m (keyword_match)
+  17. ID 3036: n (keyword_match)
+  18. ID 3037: o (keyword_match)
+  19. ID 3038: p (keyword_match)
+  20. ID 3040: r (keyword_match)
+
+EMOCIONES (Prioridad: 1, Límite: 25)
+--------------------------------------------------
+Pictogramas encontrados: 25
+
+  1. ID 2261: asustado (keyword_match)
+  2. ID 2374: enfadado (keyword_match)
+  3. ID 2432: ir (keyword_match)
+  4. ID 2574: sorprendido (keyword_match)
+  5. ID 2606: triste (keyword_match)
+  6. ID 2731: dado (keyword_match)
+  7. ID 3021: a (keyword_match)
+  8. ID 3024: c (keyword_match)
+  9. ID 3025: d (keyword_match)
+  10. ID 3026: e (keyword_match)
+  11. ID 3027: f (keyword_match)
+  12. ID 3028: g (keyword_match)
+  13. ID 3030: i (keyword_match)
+  14. ID 3031: j (keyword_match)
+  15. ID 3033: l (keyword_match)
+  16. ID 3036: n (keyword_match)
+  17. ID 3037: o (keyword_match)
+  18. ID 3038: p (keyword_match)
+  19. ID 3040: r (keyword_match)
+  20. ID 3041: s (keyword_match)
+  ... y 5 más
+
+FAMILIA (Prioridad: 2, Límite: 20)
+--------------------------------------------------
+Pictogramas encontrados: 20
+
+  1. ID 2243: abuela (keyword_match)
+  2. ID 2244: abuelo (keyword_match)
+  3. ID 2275: bebé (keyword_match)
+  4. ID 2276: beber (keyword_match)
+  5. ID 2422: hermana (keyword_match)
+  6. ID 2423: hermano (keyword_match)
+  7. ID 2458: mamá (keyword_match)
+  8. ID 2497: padre (keyword_match)
+  9. ID 2928: mano (keyword_match)
+  10. ID 3021: a (keyword_match)
+  11. ID 3023: b (keyword_match)
+  12. ID 3025: d (keyword_match)
+  13. ID 3026: e (keyword_match)
+  14. ID 3029: h (keyword_match)
+  15. ID 3030: i (keyword_match)
+  16. ID 3033: l (keyword_match)
+  17. ID 3035: m (keyword_match)
+  18. ID 3036: n (keyword_match)
+  19. ID 3037: o (keyword_match)
+  20. ID 3038: p (keyword_match)
+
+LUGARES (Prioridad: 2, Límite: 25)
+--------------------------------------------------
+Pictogramas encontrados: 25
+
+  1. ID 2317: casa (keyword_match)
+  2. ID 2704: ciudad (keyword_match)
+  3. ID 2708: col (keyword_match)
+  4. ID 2826: playa (keyword_match)
+  5. ID 2859: parque (keyword_match)
+  6. ID 3021: a (keyword_match)
+  7. ID 3024: c (keyword_match)
+  8. ID 3025: d (keyword_match)
+  9. ID 3026: e (keyword_match)
+  10. ID 3028: g (keyword_match)
+  11. ID 3029: h (keyword_match)
+  12. ID 3030: i (keyword_match)
+  13. ID 3033: l (keyword_match)
+  14. ID 3035: m (keyword_match)
+  15. ID 3036: n (keyword_match)
+  16. ID 3037: o (keyword_match)
+  17. ID 3038: p (keyword_match)
+  18. ID 3039: q (keyword_match)
+  19. ID 3040: r (keyword_match)
+  20. ID 3041: s (keyword_match)
+  ... y 5 más
+
+MAS_USADOS (Prioridad: 1, Límite: 25)
+--------------------------------------------------
+Pictogramas encontrados: 25
+
+  1. ID 2275: bebé (known_id)
+  2. ID 2331: champiñones (keyword_match)
+  3. ID 2336: cinturón (keyword_match)
+  4. ID 2359: cuaderno (keyword_match)
+  5. ID 2378: equipo de música (keyword_match)
+  6. ID 2387: estudiar (keyword_match)
+  7. ID 2389: estufa (keyword_match)
+  8. ID 2395: fisioterapeuta (keyword_match)
+  9. ID 2423: hermano (keyword_match)
+  10. ID 2426: horno (keyword_match)
+  11. ID 2429: infusión (keyword_match)
+  12. ID 2443: enjabonar las manos (keyword_match)
+  13. ID 2447: lectura (keyword_match)
+  14. ID 2477: mono (keyword_match)
+  15. ID 2485: niño (keyword_match)
+  16. ID 2496: paño de cocina (keyword_match)
+  17. ID 2507: monopatín (keyword_match)
+  18. ID 2518: persiana (keyword_match)
+  19. ID 2521: piano (keyword_match)
+  20. ID 2530: plátano (keyword_match)
+  ... y 5 más
+
+NECESIDADES_BASICAS (Prioridad: 1, Límite: 20)
+--------------------------------------------------
+Pictogramas encontrados: 20
+
+  1. ID 2275: bebé (known_id)
+  2. ID 2314: cansado (keyword_match)
+  3. ID 2367: dolor (keyword_match)
+  4. ID 2369: dormir (keyword_match)
+  5. ID 2432: ir (keyword_match)
+  6. ID 3021: a (keyword_match)
+  7. ID 3023: b (keyword_match)
+  8. ID 3024: c (keyword_match)
+  9. ID 3025: d (keyword_match)
+  10. ID 3026: e (keyword_match)
+  11. ID 3029: h (keyword_match)
+  12. ID 3030: i (keyword_match)
+  13. ID 3033: l (keyword_match)
+  14. ID 3035: m (keyword_match)
+  15. ID 3036: n (keyword_match)
+  16. ID 3037: o (keyword_match)
+  17. ID 3040: r (keyword_match)
+  18. ID 3041: s (keyword_match)
+  19. ID 3043: u (keyword_match)
+  20. ID 3047: y (keyword_match)
+
+PERSONAS (Prioridad: 2, Límite: 25)
+--------------------------------------------------
+Pictogramas encontrados: 25
+
+  1. ID 2255: amigos (keyword_match)
+  2. ID 2275: bebé (keyword_match)
+  3. ID 2276: beber (keyword_match)
+  4. ID 2457: maestro (keyword_match)
+  5. ID 2467: médico (keyword_match)
+  6. ID 2484: niña (keyword_match)
+  7. ID 2485: niño (keyword_match)
+  8. ID 3021: a (keyword_match)
+  9. ID 3023: b (keyword_match)
+  10. ID 3024: c (keyword_match)
+  11. ID 3025: d (keyword_match)
+  12. ID 3026: e (keyword_match)
+  13. ID 3027: f (keyword_match)
+  14. ID 3028: g (keyword_match)
+  15. ID 3029: h (keyword_match)
+  16. ID 3030: i (keyword_match)
+  17. ID 3031: j (keyword_match)
+  18. ID 3035: m (keyword_match)
+  19. ID 3036: n (keyword_match)
+  20. ID 3037: o (keyword_match)
+  ... y 5 más
+
+PRONOMBRES (Prioridad: 2, Límite: 10)
+--------------------------------------------------
+Pictogramas encontrados: 10
+
+  1. ID 2243: abuela (keyword_match)
+  2. ID 2244: abuelo (keyword_match)
+  3. ID 2255: amigos (keyword_match)
+  4. ID 2261: asustado (keyword_match)
+  5. ID 2288: botella (keyword_match)
+  6. ID 2306: camión (keyword_match)
+  7. ID 2307: camión de juguete (keyword_match)
+  8. ID 2308: camisa (keyword_match)
+  9. ID 2309: camiseta (keyword_match)
+  10. ID 2310: camiseta (keyword_match)
+
+SALUDOS (Prioridad: 1, Límite: 12)
+--------------------------------------------------
+Pictogramas encontrados: 12
+
+  1. ID 3021: a (keyword_match)
+  2. ID 3023: b (keyword_match)
+  3. ID 3024: c (keyword_match)
+  4. ID 3025: d (keyword_match)
+  5. ID 3026: e (keyword_match)
+  6. ID 3027: f (keyword_match)
+  7. ID 3028: g (keyword_match)
+  8. ID 3029: h (keyword_match)
+  9. ID 3030: i (keyword_match)
+  10. ID 3033: l (keyword_match)
+  11. ID 3036: n (keyword_match)
+  12. ID 3037: o (keyword_match)
+
+TIEMPO (Prioridad: 2, Límite: 20)
+--------------------------------------------------
+Pictogramas encontrados: 20
+
+  1. ID 2387: estudiar (keyword_match)
+  2. ID 2438: judías verdes (keyword_match)
+  3. ID 2466: medias (keyword_match)
+  4. ID 2557: sandía (keyword_match)
+  5. ID 2708: col (keyword_match)
+  6. ID 2925: mar (keyword_match)
+  7. ID 3021: a (keyword_match)
+  8. ID 3023: b (keyword_match)
+  9. ID 3024: c (keyword_match)
+  10. ID 3025: d (keyword_match)
+  11. ID 3026: e (keyword_match)
+  12. ID 3028: g (keyword_match)
+  13. ID 3029: h (keyword_match)
+  14. ID 3030: i (keyword_match)
+  15. ID 3031: j (keyword_match)
+  16. ID 3033: l (keyword_match)
+  17. ID 3035: m (keyword_match)
+  18. ID 3036: n (keyword_match)
+  19. ID 3037: o (keyword_match)
+  20. ID 3040: r (keyword_match)
+
+TRANSPORTE (Prioridad: 3, Límite: 15)
+--------------------------------------------------
+Pictogramas encontrados: 15
+
+  1. ID 2262: autobús (keyword_match)
+  2. ID 2263: autobús (keyword_match)
+  3. ID 2264: avión (keyword_match)
+  4. ID 2273: barco (keyword_match)
+  5. ID 2277: bicicleta (keyword_match)
+  6. ID 2339: coche (keyword_match)
+  7. ID 2340: coche de juguete (keyword_match)
+  8. ID 2455: macarrones (keyword_match)
+  9. ID 2480: motocicleta (keyword_match)
+  10. ID 2603: tren (keyword_match)
+  11. ID 3021: a (keyword_match)
+  12. ID 3023: b (keyword_match)
+  13. ID 3024: c (keyword_match)
+  14. ID 3026: e (keyword_match)
+  15. ID 3029: h (keyword_match)
+
+VERBOS (Prioridad: 1, Límite: 50)
+--------------------------------------------------
+Pictogramas encontrados: 50
+
+  1. ID 2275: bebé (keyword_match)
+  2. ID 2276: beber (keyword_match)
+  3. ID 2345: colador (known_id)
+  4. ID 2349: comer (keyword_match)
+  5. ID 2369: dormir (keyword_match)
+  6. ID 2380: escribir (keyword_match)
+  7. ID 2381: oir (keyword_match)
+  8. ID 2432: ir (keyword_match)
+  9. ID 2437: jirafa (keyword_match)
+  10. ID 2438: judías verdes (keyword_match)
+  11. ID 2439: jugar (keyword_match)
+  12. ID 2474: ver (keyword_match)
+  13. ID 2637: abrir la caja (keyword_match)
+  14. ID 2640: aire acondicionado (keyword_match)
+  15. ID 2703: ciruelas (keyword_match)
+  16. ID 2712: conducir (keyword_match)
+  17. ID 2713: construir (keyword_match)
+  18. ID 2719: correr (keyword_match)
+  19. ID 2781: vestir (keyword_match)
+  20. ID 2782: ver la televisión (keyword_match)
+  ... y 30 más

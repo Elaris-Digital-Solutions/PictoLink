@@ -54,13 +54,13 @@ export function useContacts() {
                     // Obtener último mensaje de la conversación
                     const { data: lastMessageData } = await supabase
                         .from("messages")
-                        .select("content, created_at")
+                        .select("id, content, created_at")
                         .or(
                             `and(sender_id.eq.${user.id},receiver_id.eq.${contact.contact_id}),and(sender_id.eq.${contact.contact_id},receiver_id.eq.${user.id})`
                         )
                         .order("created_at", { ascending: false })
                         .limit(1)
-                        .single();
+                        .maybeSingle();
 
                     // Contar mensajes no leídos
                     const { count: unreadCount } = await supabase
