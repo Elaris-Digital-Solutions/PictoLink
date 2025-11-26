@@ -1,16 +1,26 @@
 import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 from typing import List
+import os
 
 class NLGService:
     _instance = None
     
-    def __init__(self, model_name: str = "google/mt5-small"):
-        # Disable model loading for now to avoid <extra_id_0> issues
-        # and memory overhead. Using rule-based fallback.
-        print("NLG Service initialized (Rule-based mode).")
+    def __init__(self, model_path: str = "nlp_backend/models/mt5_picto_v1"):
         self.model = None
         self.tokenizer = None
+        
+        # Try to load fine-tuned model
+        if os.path.exists(model_path):
+            print(f"Loading fine-tuned NLG model from {model_path}...")
+            try:
+                self.tokenizer = T5Tokenizer.from_pretrained(model_path)
+                self.model = T5ForConditionalGeneration.from_pretrained(model_path)
+                print("NLG Model loaded successfully.")
+            except Exception as e:
+                print(f"Error loading model: {e}")
+        else:
+            print(f"Fine-tuned model not found at {model_path}. Using rule-based fallback.")
 
     @classmethod
     def get_instance(cls):
@@ -19,44 +29,44 @@ class NLGService:
         return cls._instance
 
     def generate_sentence(self, lemmas: List[str]) -> str:
-        if not self.model or not self.tokenizer:
-            return self._fallback_generation(lemmas)
+        # Input preparation
+        input_text = " ".join(lemmas)
         
-        # Try multiple prompting strategies
-        prompts = [
-            f"Forma una frase con estas palabras: {' '.join(lemmas)}",
-            f"Escribe una oración usando: {' '.join(lemmas)}",
-            " ".join(lemmas)  # Simple concatenation as last resort
-        ]
-        
-        for prompt in prompts:
+        if self.model and self.tokenizer:
             try:
-                input_ids = self.tokenizer.encode(prompt, return_tensors="pt", max_length=512, truncation=True)
+                input_ids = self.tokenizer.encode(input_text, return_tensors="pt", max_length=64, truncation=True)
                 
                 with torch.no_grad():
                     outputs = self.model.generate(
                         input_ids, 
-                        max_length=100, 
-                        num_beams=5, 
+                        max_length=64, 
+                        num_beams=4, 
                         early_stopping=True,
-                        no_repeat_ngram_size=2,
-                        temperature=0.7,
-                        do_sample=False
+                        no_repeat_ngram_size=2
                     )
                     
                 generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
                 
-                # Check if generation is valid (not empty, not just special tokens, not same as input)
-                if generated_text and len(generated_text) > 3 and generated_text != prompt:
-                    # Additional validation: check if it's not just repeating the prompt
-                    if not generated_text.startswith("Forma una frase") and not generated_text.startswith("Escribe una"):
-                        return self._post_process(generated_text)
+                with open("nlg_debug.log", "a", encoding="utf-8") as f:
+                    f.write(f"Raw output: '{generated_text}'\n")
+                
+                # Validation: Reject empty, single punctuation, or sentinel-like output
+                # Explicitly check for <extra_id_0> even if skip_special_tokens=True failed
+                if (generated_text and 
+                    len(generated_text) > 2 and 
+                    "<extra_id" not in generated_text and
+                    not generated_text.startswith("<")):
+                    return self._post_process(generated_text)
+                else:
+                    with open("nlg_debug.log", "a", encoding="utf-8") as f:
+                        f.write("Output rejected. Using fallback.\n")
+                    
             except Exception as e:
-                print(f"Error with prompt '{prompt[:30]}...': {e}")
-                continue
+                with open("nlg_debug.log", "a", encoding="utf-8") as f:
+                    f.write(f"Error: {e}\n")
+                print(f"NLG Generation error: {e}")
         
-        # If all prompts fail, use rule-based fallback
-        print("NLG model failed, using rule-based fallback")
+        # Fallback if model missing or failed
         return self._fallback_generation(lemmas)
     
     def _fallback_generation(self, lemmas: List[str]) -> str:
@@ -70,33 +80,81 @@ class NLGService:
         # Simple heuristics for Spanish
         sentence = []
         
+        # Common verbs to conjugate (3rd person singular default)
+        verb_map = {
+            'comer': 'come',
+            'beber': 'bebe',
+            'jugar': 'juega',
+            'dormir': 'duerme',
+            'correr': 'corre',
+            'saltar': 'salta',
+            'caminar': 'camina',
+            'ver': 've',
+            'mirar': 'mira',
+            'querer': 'quiere',
+            'ir': 'va',
+            'estar': 'está',
+            'ser': 'es',
+            'tener': 'tiene',
+            'haber': 'hay',
+            'gustar': 'le gusta',
+            'encantar': 'le encanta',
+            'cortar': 'corta',
+            'barrer': 'barre',
+            'pintar': 'pinta',
+            'dibujar': 'dibuja',
+            'leer': 'lee',
+            'escribir': 'escribe',
+            'escuchar': 'escucha',
+            'hablar': 'habla'
+        }
+
         for i, word in enumerate(lemmas):
             word_lower = word.lower()
             
-            # Capitalize first word
+            # Add article 'El' at the start if it's a noun (heuristic: not a verb/adj/pronoun)
+            # This is a very rough heuristic.
+            if i == 0 and word_lower not in ['yo', 'tú', 'él', 'ella', 'nosotros', 'ellos'] and word_lower not in verb_map:
+                # Assume masculine for simplicity unless ends in 'a'
+                if word_lower.endswith('a') and not word_lower.endswith('ista'):
+                    sentence.append("La " + word.capitalize())
+                else:
+                    sentence.append("El " + word.capitalize())
+                continue
+            
+            # Capitalize first word if we didn't add an article
             if i == 0:
                 sentence.append(word.capitalize())
-            # Handle common verb conjugations
-            elif word_lower in ['querer', 'ir', 'estar', 'ser', 'tener']:
-                # Try to conjugate based on subject (very basic)
-                if lemmas[0].lower() == 'yo':
-                    conjugations = {
-                        'querer': 'quiero',
-                        'ir': 'voy',
-                        'estar': 'estoy',
-                        'ser': 'soy',
-                        'tener': 'tengo'
-                    }
-                    sentence.append(conjugations.get(word_lower, word))
-                elif lemmas[0].lower() in ['él', 'ella']:
-                    conjugations = {
-                        'querer': 'quiere',
-                        'ir': 'va',
-                        'estar': 'está',
-                        'ser': 'es',
-                        'tener': 'tiene'
-                    }
-                    sentence.append(conjugations.get(word_lower, word))
+                continue
+
+            # Handle verb conjugations
+            if word_lower in verb_map:
+                # Special handling for 'yo'
+                if i > 0 and lemmas[i-1].lower() == 'yo':
+                    if word_lower == 'comer': sentence.append('como')
+                    elif word_lower == 'beber': sentence.append('bebo')
+                    elif word_lower == 'jugar': sentence.append('juego')
+                    elif word_lower == 'dormir': sentence.append('duermo')
+                    elif word_lower == 'querer': sentence.append('quiero')
+                    elif word_lower == 'ir': sentence.append('voy')
+                    elif word_lower == 'estar': sentence.append('estoy')
+                    elif word_lower == 'ser': sentence.append('soy')
+                    elif word_lower == 'tener': sentence.append('tengo')
+                    elif word_lower == 'gustar': sentence.append('me gusta')
+                    else: sentence.append(word)
+                else:
+                    sentence.append(verb_map[word_lower])
+            
+            # Generic conjugation heuristic for unknown verbs
+            elif word_lower.endswith('ar') or word_lower.endswith('er') or word_lower.endswith('ir'):
+                # Very naive check if it's likely a verb (length > 3)
+                if len(word_lower) > 3:
+                    if word_lower.endswith('ar'):
+                        sentence.append(word_lower[:-2] + 'a')
+                    elif word_lower.endswith('er'):
+                        sentence.append(word_lower[:-2] + 'e')
+                    elif word_lower.endswith('ir'):
+                        sentence.append(word_lower[:-2] + 'e')
                 else:
                     sentence.append(word)
             else:

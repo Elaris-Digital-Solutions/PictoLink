@@ -13,8 +13,9 @@ import { useSpeechRecognition, useSpeechSynthesis } from '@/hooks/useSpeech';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { searchPictograms, type Pictogram, getPictogramCategories, getPictogramsByCategory } from '@/lib/pictograms';
+import { searchPictograms, type Pictogram, getPictogramCategories, getPictogramsByCategory, CATEGORY_ICONS } from '@/lib/pictograms';
 import { convertTextToPictos, convertPictosToText, getAutocompleteSuggestions } from '@/lib/api';
+import { ArrowLeft } from 'lucide-react';
 
 const Chat = () => {
   const { user, logout } = useAuth();
@@ -71,7 +72,8 @@ const Chat = () => {
     const loadCategories = async () => {
       const cats = getPictogramCategories();
       setCategories(cats);
-      setSelectedCategory(cats[0]); // Select first category by default
+      // Don't select default category to show the grid
+      // setSelectedCategory(cats[0]); 
     };
     loadCategories();
   }, []);
@@ -114,7 +116,8 @@ const Chat = () => {
           // Enviar como mensaje compuesto de pictogramas
           const ids = foundPictograms.map(p => p.id);
           const labels = foundPictograms.map(p => p.labels.es);
-          messageToSend = `[pictograms:${ids.join(',')}:${labels.join(' ')}]`;
+          // Include original text for display
+          messageToSend = `[pictograms:${ids.join(',')}:${labels.join(' ')}|${inputMessage.trim()}]`;
           console.log('Mensaje compuesto preparado:', messageToSend);
         }
       } catch (e) {
@@ -138,7 +141,24 @@ const Chat = () => {
       // Modo pictogramas - enviar selección actual
       if (selectedPictograms.length === 0 || !selectedContactId) return;
       try {
-        const pictogramMessage = `[pictograms:${selectedPictograms.map(p => p.id).join(',')}:${selectedPictograms.map(p => p.labels.es).join(' ')}]`;
+        // Generate natural language text from pictograms
+        console.log('Generating text from pictograms...');
+        const generatedText = await convertPictosToText(selectedPictograms);
+        console.log('Generated text:', generatedText);
+
+        // Format: [pictograms:IDS:LABELS:GENERATED_TEXT]
+        // We use a different separator or just append it. 
+        // Let's use a pipe | or just colon if we are sure text doesn't contain it? 
+        // The regex uses (.+) for labels, so appending might break it if we don't change regex first.
+        // Let's use a new format or extend the existing one safely.
+        // Existing regex: /^\[pictograms:([\d,]+):(.+)\]$/
+        // If we append :TEXT, the (.+) might eat it.
+        // Let's use a specific delimiter for the text part, e.g. |TEXT]
+
+        const ids = selectedPictograms.map(p => p.id).join(',');
+        const labels = selectedPictograms.map(p => p.labels.es).join(' ');
+        const pictogramMessage = `[pictograms:${ids}:${labels}|${generatedText}]`;
+
         await sendMessage(pictogramMessage);
         setSelectedPictograms([]);
         setPictograms([]);
@@ -210,14 +230,15 @@ const Chat = () => {
 
   const renderMessageContent = (content: string) => {
     // Check for compound pictograms first
-    const compoundMatch = content.match(/^\[pictograms:([\d,]+):(.+)\]$/);
+    // Format: [pictograms:IDS:LABELS] or [pictograms:IDS:LABELS|GENERATED_TEXT]
+    const compoundMatch = content.match(/^\[pictograms:([\d,]+):([^|]+)(?:\|(.+))?\]$/);
     if (compoundMatch) {
-      const [, idsString, labelsString] = compoundMatch;
+      const [, idsString, labelsString, generatedText] = compoundMatch;
       const ids = idsString.split(',').map(id => parseInt(id));
       const labels = labelsString.split(' ');
 
       return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <div className="flex gap-2 flex-wrap justify-center">
             {ids.map((id, index) => (
               <div key={`${id}-${index}`} className="flex flex-col items-center gap-1">
@@ -230,6 +251,11 @@ const Chat = () => {
               </div>
             ))}
           </div>
+          {generatedText && (
+            <div className="bg-white/50 p-2 rounded text-center border border-black/5">
+              <p className="text-sm font-medium text-foreground">{generatedText}</p>
+            </div>
+          )}
         </div>
       );
     }
@@ -475,48 +501,73 @@ const Chat = () => {
                 </TabsContent>
 
                 <TabsContent value="pictograms" className="space-y-4">
-                  {/* Selector de categorías */}
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Categorías:</h4>
-                    <div className="flex gap-2 flex-wrap">
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          onClick={() => setSelectedCategory(category)}
-                          className={`px-3 py-1 rounded-full text-sm ${selectedCategory === category
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-gray-100 hover:bg-gray-200'
-                            }`}
-                        >
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Pictogramas de la categoría seleccionada */}
-                  {selectedCategory && categoryPictograms[selectedCategory] && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Pictogramas de "{selectedCategory}":</h4>
-                      <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
-                        {categoryPictograms[selectedCategory].map((pictogram) => (
+                  {/* Visual Category Navigation */}
+                  {!selectedCategory ? (
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-medium text-center text-muted-foreground">Selecciona una categoría</h4>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                        {categories.map((category) => (
                           <button
-                            key={pictogram.id}
-                            onClick={() => handleAddPictogram(pictogram)}
-                            className={`flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-gray-50 transition-colors ${selectedPictograms.some(p => p.id === pictogram.id)
-                              ? 'border-green-500 bg-green-50'
-                              : 'border-gray-200'
-                              }`}
+                            key={category}
+                            onClick={() => setSelectedCategory(category)}
+                            className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-transparent hover:border-primary/20 hover:bg-gray-50 transition-all aspect-square justify-center bg-white shadow-sm"
                           >
                             <img
-                              src={pictogram.image_urls.png_color}
-                              alt={pictogram.labels?.es || 'Pictograma'}
-                              className="w-12 h-12 object-contain"
+                              src={`https://static.arasaac.org/pictograms/${CATEGORY_ICONS[category] || 2369}/${CATEGORY_ICONS[category] || 2369}_500.png`}
+                              alt={category}
+                              className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
                             />
-                            <p className="text-xs text-center truncate w-full">{pictogram.labels?.es || 'Sin etiqueta'}</p>
+                            {/* Hidden label for accessibility, visible only if needed */}
+                            <span className="sr-only">{category}</span>
                           </button>
                         ))}
                       </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setSelectedCategory('')}
+                          className="h-12 w-12 rounded-full border-2"
+                        >
+                          <ArrowLeft className="h-6 w-6" />
+                        </Button>
+                        <div className="flex-1 flex justify-center">
+                          <img
+                            src={`https://static.arasaac.org/pictograms/${CATEGORY_ICONS[selectedCategory] || 2369}/${CATEGORY_ICONS[selectedCategory] || 2369}_500.png`}
+                            alt={selectedCategory}
+                            className="w-10 h-10 object-contain opacity-50"
+                          />
+                        </div>
+                        <div className="w-12" /> {/* Spacer for centering */}
+                      </div>
+
+                      {categoryPictograms[selectedCategory] ? (
+                        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3 max-h-[60vh] overflow-y-auto p-1">
+                          {categoryPictograms[selectedCategory].map((pictogram) => (
+                            <button
+                              key={pictogram.id}
+                              onClick={() => handleAddPictogram(pictogram)}
+                              className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all aspect-square justify-center bg-white shadow-sm ${selectedPictograms.some(p => p.id === pictogram.id)
+                                ? 'border-primary bg-primary/5'
+                                : 'border-transparent hover:border-gray-200'
+                                }`}
+                            >
+                              <img
+                                src={pictogram.image_urls.png_color}
+                                alt={pictogram.labels?.es || 'Pictograma'}
+                                className="w-full h-full object-contain p-1"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex justify-center py-10">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        </div>
+                      )}
                     </div>
                   )}
                   {/* Pictogramas seleccionados */}

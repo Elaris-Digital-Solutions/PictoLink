@@ -5,3 +5,12 @@ thefuzz
 python-Levenshtein
 pydantic
 pytest
+sentence-transformers
+faiss-cpu
+numpy
+transformers
+sentencepiece
+torch
+datasets
+accelerate
+requests
