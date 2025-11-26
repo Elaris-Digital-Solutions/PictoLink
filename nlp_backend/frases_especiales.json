@@ -1,15 +1,112 @@
 {
-  "¿cómo estás?": ["7061", "10273"],
-  "buenos días": ["6944"],
-  "buenas tardes": ["6943"],
-  "buenas noches": ["6942"],
-  "tengo hambre": ["2532", "7272"],
-  "tengo sed": ["4606", "4963"],
-  "quiero ir al baño": ["37160", "2430"],
-  "quiero pasear": ["5441", "37345"],
-  "necesito ayuda": ["37160", "4570"],
-  "me siento mal": ["2606"],
-  "me siento bien": ["13630"],
-  "quiero jugar": ["37160", "2439"],
-  "quiero dormir": ["37160", "2369"]
+  "¿cómo estás?": [
+    "7061",
+    "10273"
+  ],
+  "cómo estás": [
+    "22619",
+    "5465"
+  ],
+  "qué tal": [
+    "22619",
+    "5465"
+  ],
+  "que tal": [
+    "22619",
+    "5465"
+  ],
+  "buenos días": [
+    "6944"
+  ],
+  "buenas tardes": [
+    "6943"
+  ],
+  "buenas noches": [
+    "6942"
+  ],
+  "tengo hambre": [
+    "2532",
+    "7272"
+  ],
+  "tengo sed": [
+    "4606",
+    "4963"
+  ],
+  "quiero pasear": [
+    "5441",
+    "37345"
+  ],
+  "necesito ayuda": [
+    "37160",
+    "4570"
+  ],
+  "me siento mal": [
+    "2606"
+  ],
+  "me siento bien": [
+    "13630"
+  ],
+  "quiero jugar": [
+    "37160",
+    "2439"
+  ],
+  "quiero dormir": [
+    "37160",
+    "2369"
+  ],
+  "no se": [
+    "5526",
+    "2652"
+  ],
+  "no sé": [
+    "5526",
+    "2652"
+  ],
+  "de nada": [
+    "7074",
+    "29839"
+  ],
+  "por favor": [
+    "8194"
+  ],
+  "gracias": [
+    "8128"
+  ],
+  "qué hora es": [
+    "22620",
+    "7129",
+    "5581"
+  ],
+  "que hora es": [
+    "22620",
+    "7129",
+    "5581"
+  ],
+  "dormiste": [
+    "2369"
+  ],
+  "durmiendo": [
+    "2369"
+  ],
+  "ahora": [
+    "13026"
+  ],
+  "después": [
+    "13080"
+  ],
+  "como te sientes": [
+    "22619",
+    "2608"
+  ],
+  "como estas": [
+    "22619",
+    "5465"
+  ],
+  "como estás": [
+    "22619",
+    "5465"
+  ],
+  "hoy": [
+    "7131"
+  ]
 }

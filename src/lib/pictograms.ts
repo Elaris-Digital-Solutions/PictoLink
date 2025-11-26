@@ -1,3 +1,5 @@
+import { searchPictogramsAPI } from './api';
+
 export interface Pictogram {
   id: number;
   labels: {
@@ -11,51 +13,9 @@ export interface Pictogram {
   };
 }
 
-const ARASAAC_API_BASE = 'https://api.arasaac.org/v1';
-
 export async function searchPictograms(query: string, lang: 'es' | 'en' = 'es'): Promise<Pictogram[]> {
-  try {
-    // Load local catalog data
-    const response = await fetch('/data/arasaac_catalog.jsonl');
-    const text = await response.text();
-    const lines = text.split('\n').filter(line => line.trim());
-
-    // Parse and filter pictograms
-    const filteredPictograms: Pictogram[] = [];
-
-    for (const line of lines) {
-      try {
-        const p = JSON.parse(line);
-        if (p.labels && p.labels[lang]) {
-          const label = p.labels[lang].toLowerCase();
-          const searchTerm = query.toLowerCase();
-
-          // Check if label or synonyms match
-          const matches = label.includes(searchTerm) ||
-            (p.synonyms?.[lang]?.some((syn: string) => syn.toLowerCase().includes(searchTerm)));
-
-          if (matches) {
-            filteredPictograms.push({
-              id: Number(p.id),
-              labels: p.labels,
-              image_urls: p.image_urls,
-            });
-
-            // Limit to 10 results
-            if (filteredPictograms.length >= 10) break;
-          }
-        }
-      } catch (e) {
-        // Skip invalid lines
-        continue;
-      }
-    }
-
-    return filteredPictograms;
-  } catch (error) {
-    console.error('Error searching pictograms:', error);
-    return [];
-  }
+  // Use the backend API for search
+  return await searchPictogramsAPI(query);
 }
 
 export function getPictogramCategories(): string[] {

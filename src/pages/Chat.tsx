@@ -14,6 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { searchPictograms, type Pictogram, getPictogramCategories, getPictogramsByCategory } from '@/lib/pictograms';
+import { convertTextToPictos, convertPictosToText, getAutocompleteSuggestions } from '@/lib/api';
 
 const Chat = () => {
   const { user, logout } = useAuth();
@@ -29,6 +30,7 @@ const Chat = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryPictograms, setCategoryPictograms] = useState<Record<string, Pictogram[]>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef(0);
@@ -93,44 +95,45 @@ const Chat = () => {
   }, [selectedCategory, messageMode]);
 
   const handleSendMessage = async () => {
+    console.log('handleSendMessage called', { messageMode, inputMessage, selectedContactId });
     if (messageMode === 'text') {
-      if (!inputMessage.trim() || !selectedContactId) return;
+      if (!inputMessage.trim() || !selectedContactId) {
+        console.log('Validation failed: empty message or no contact');
+        return;
+      }
 
-      // Intentar convertir texto a pictogramas automáticamente
-      const words = inputMessage.trim().toLowerCase().split(/\s+/).filter(word => word.length > 0);
-      console.log('Palabras a procesar:', words);
-      const foundPictograms: Pictogram[] = [];
+      let messageToSend = inputMessage;
 
-      for (const word of words.slice(0, 5)) { // Limitar a 5 palabras para no sobrecargar
-        try {
-          const results = await searchPictograms(word);
-          console.log(`Resultados para "${word}":`, results.length, 'pictogramas');
-          if (results.length > 0) {
-            foundPictograms.push(results[0]); // Tomar el primer resultado
-          }
-        } catch (e) {
-          console.error(`Error buscando pictograma para "${word}":`, e);
+      try {
+        console.log('Attempting to convert text to pictos...');
+        // Convert text to pictograms using the backend API
+        const foundPictograms = await convertTextToPictos(inputMessage.trim());
+        console.log('Pictogramas encontrados (API):', foundPictograms);
+
+        if (foundPictograms.length > 0) {
+          // Enviar como mensaje compuesto de pictogramas
+          const ids = foundPictograms.map(p => p.id);
+          const labels = foundPictograms.map(p => p.labels.es);
+          messageToSend = `[pictograms:${ids.join(',')}:${labels.join(' ')}]`;
+          console.log('Mensaje compuesto preparado:', messageToSend);
         }
+      } catch (e) {
+        console.error('Error converting text to pictograms (falling back to text):', e);
+        // Fallback to sending original text is implicit as messageToSend is already set
       }
 
-      console.log('Pictogramas encontrados:', foundPictograms);
-
-      if (foundPictograms.length > 0) {
-        // Enviar como mensaje compuesto de pictogramas
-        const ids = foundPictograms.map(p => p.id);
-        const labels = foundPictograms.map(p => p.labels.es);
-        const pictogramMessage = `[pictograms:${ids.join(',')}:${labels.join(' ')}]`;
-        console.log('Mensaje compuesto:', pictogramMessage);
-        await sendMessage(pictogramMessage);
-      } else {
-        // Si no se encontraron pictogramas, enviar como texto normal
-        await sendMessage(inputMessage);
+      try {
+        console.log('Sending message to Supabase:', messageToSend);
+        await sendMessage(messageToSend);
+        console.log('Message sent successfully');
+        setInputMessage('');
+        resetTranscript();
+        setPictograms([]);
+        setShowPictograms(false);
+      } catch (e) {
+        console.error('Error sending message:', e);
+        alert('Error al enviar mensaje: ' + (e as Error).message);
       }
-
-      setInputMessage('');
-      resetTranscript();
-      setPictograms([]);
-      setShowPictograms(false);
     } else {
       // Modo pictogramas - enviar selección actual
       if (selectedPictograms.length === 0 || !selectedContactId) return;
@@ -217,7 +220,7 @@ const Chat = () => {
         <div className="flex flex-col gap-2">
           <div className="flex gap-2 flex-wrap justify-center">
             {ids.map((id, index) => (
-              <div key={id} className="flex flex-col items-center gap-1">
+              <div key={`${id}-${index}`} className="flex flex-col items-center gap-1">
                 <img
                   src={`https://static.arasaac.org/pictograms/${id}/${id}_500.png`}
                   alt={labels[index] || `Pictograma ${id}`}
@@ -401,7 +404,28 @@ const Chat = () => {
                   <TabsTrigger value="pictograms">Solo Pictogramas</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="text" className="space-y-4">
+                <TabsContent value="text" className="space-y-4 relative">
+                  {/* Autocomplete Suggestions */}
+                  {suggestions.length > 0 && (
+                    <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                      {suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                          onClick={() => {
+                            const words = inputMessage.split(' ');
+                            words.pop(); // Remove partial word
+                            words.push(suggestion);
+                            setInputMessage(words.join(' ') + ' ');
+                            setSuggestions([]);
+                          }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="flex gap-2">
                     <Input
                       placeholder={
@@ -414,7 +438,18 @@ const Chat = () => {
                             : 'Selecciona un contacto primero...'
                       }
                       value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
+                      onChange={(e) => {
+                        const newVal = e.target.value;
+                        setInputMessage(newVal);
+
+                        // Debounced autocomplete
+                        const lastWord = newVal.split(' ').pop();
+                        if (lastWord && lastWord.length >= 2) {
+                          getAutocompleteSuggestions(lastWord).then(setSuggestions);
+                        } else {
+                          setSuggestions([]);
+                        }
+                      }}
                       onKeyPress={(e) => {
                         if (e.key === 'Enter' && selectedContactId) handleSendMessage();
                       }}
@@ -494,8 +529,8 @@ const Chat = () => {
                           Selecciona pictogramas para formar una frase
                         </p>
                       ) : (
-                        selectedPictograms.map((pictogram) => (
-                          <div key={pictogram.id} className="flex items-center gap-2 bg-white p-2 rounded border">
+                        selectedPictograms.map((pictogram, index) => (
+                          <div key={`${pictogram.id}-${index}`} className="flex items-center gap-2 bg-white p-2 rounded border">
                             <img
                               src={pictogram.image_urls.png_color}
                               alt={pictogram.labels?.es || 'Pictograma'}
