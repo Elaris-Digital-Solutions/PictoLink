@@ -37,6 +37,10 @@ async def startup_event():
     
     service = CatalogService.get_instance()
     service.load_data(data_path)
+    
+    # Initialize NLG Service (loads model)
+    from nlp_backend.services.nlg import NLGService
+    NLGService.get_instance()
 
 @app.get("/health")
 def health_check():

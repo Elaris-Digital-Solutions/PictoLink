@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from pydantic import BaseModel
 
 class Pictogram(BaseModel):
@@ -15,6 +15,7 @@ class CatalogService:
         self.index: Dict[str, List[Pictogram]] = {}
         self.pictograms: Dict[int, Pictogram] = {}
         self.loaded = False
+        self.semantic_engine = None
         
     @classmethod
     def get_instance(cls):
@@ -50,7 +51,6 @@ class CatalogService:
                             self.index[label].append(picto)
                             
                             # Also index normalized version (remove accents/tildes)
-                            # e.g. "bañar" -> "banar", "avión" -> "avion"
                             import unicodedata
                             normalized = ''.join(c for c in unicodedata.normalize('NFD', label) if unicodedata.category(c) != 'Mn')
                             if normalized != label:
@@ -58,14 +58,35 @@ class CatalogService:
                                     self.index[normalized] = []
                                 self.index[normalized].append(picto)
                             
-                        # Index by synonyms (if available in the raw data, usually in 'keywords' or similar)
-                        # Note: The raw Arasaac format varies. We'll stick to labels for now to match frontend logic.
-                        # If synonyms are needed, we'd check data.get('keywords', []) or similar.
-                        
                     except Exception as e:
                         continue
             self.loaded = True
             print(f"Loaded {len(self.pictograms)} pictograms.")
+            
+            # Initialize Semantic Search
+            try:
+                from nlp_backend.embeddings.faiss_backend import FaissBackend
+                self.semantic_engine = FaissBackend()
+                
+                # Check if index exists
+                base_dir = os.path.dirname(file_path)
+                index_prefix = os.path.join(base_dir, "faiss_index")
+                
+                if self.semantic_engine.load(index_prefix):
+                    print("Semantic index loaded from disk.")
+                    self.semantic_engine.link_pictograms(self.pictograms)
+                else:
+                    print("Building semantic index (this may take a while)...")
+                    # Convert dict values to list
+                    all_pictograms = list(self.pictograms.values())
+                    self.semantic_engine.index_catalog(all_pictograms)
+                    self.semantic_engine.save(index_prefix)
+                    
+            except ImportError:
+                print("Warning: sentence-transformers or faiss not installed. Semantic search disabled.")
+            except Exception as e:
+                print(f"Error initializing semantic search: {e}")
+                
         except FileNotFoundError:
             print(f"Error: File {file_path} not found.")
 
@@ -93,6 +114,11 @@ class CatalogService:
                 results.extend(self.index.get(match_term, []))
                 
         return results
+
+    def search_semantic(self, query: str, limit: int = 10) -> List[Tuple[Pictogram, float]]:
+        if not self.semantic_engine:
+            return []
+        return self.semantic_engine.search(query, limit)
 
     def search_autocomplete(self, query: str, limit: int = 10) -> List[str]:
         """

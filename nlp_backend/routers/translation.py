@@ -112,6 +112,14 @@ async def text_to_pictos(request: TextRequest):
     # 1. Process text (lemmatize)
     tokens = nlp.process_text(request.text)
     
+    # Pre-compute context embedding for re-ranking
+    context_embedding = None
+    if catalog.semantic_engine:
+        try:
+            context_embedding = catalog.semantic_engine.get_embedding(request.text)
+        except Exception as e:
+            print(f"Error computing context embedding: {e}")
+    
     result_pictos = []
     
     # 2. Map tokens to pictograms
@@ -197,6 +205,8 @@ async def text_to_pictos(request: TextRequest):
         'pensar': 'pensamiento',
         'saber': 'saber',            # Changed from 'sabiduría' (doesn't exist)
     }
+
+    import numpy as np
 
     for token in tokens:
         text_lower = token['text'].lower()
@@ -299,15 +309,55 @@ async def text_to_pictos(request: TextRequest):
                 if matches:
                     print(f"Fallback mapping: '{text}' -> '{mapped_term}'")
             
-        # Strategy 3: Fuzzy Search (New)
+        # Strategy 3: Semantic Search (Fallback)
+        if not matches and catalog.semantic_engine:
+            # Only try semantic if word is significant (not a stopword or very short, unless it's a noun/verb)
+            if len(token['text']) > 2 and not token['is_stop']:
+                print(f"Trying semantic search for '{token['text']}'...")
+                semantic_matches = catalog.search_semantic(token['text'], limit=5)
+                if semantic_matches:
+                    # Filter by score? For now take top results
+                    matches = [m[0] for m in semantic_matches if m[1] > 0.4] # Threshold
+                    if matches:
+                        print(f"Semantic match: '{token['text']}' -> '{matches[0].labels.get('es')}'")
+
+        # Strategy 4: Fuzzy Search (Last resort)
         if not matches:
             # Only try fuzzy if the word is long enough to avoid noise
             if len(token['text']) > 3:
                 matches = catalog.find_fuzzy(token['text'])
-            
+        
+        # RE-RANKING: If we have multiple matches and context, pick the best one
+        if matches and len(matches) > 1 and context_embedding is not None:
+            try:
+                scores = []
+                for m in matches:
+                    # Use the main label for embedding comparison
+                    label = m.labels.get('es', '')
+                    if label:
+                        # Try to get cached embedding first (much faster)
+                        label_emb = catalog.semantic_engine.get_vector_by_id(m.id)
+                        
+                        if label_emb is None:
+                            # Fallback to computing it (e.g. if index is stale or picto not indexed)
+                            label_emb = catalog.semantic_engine.get_embedding(label)
+                        
+                        # Cosine similarity
+                        score = np.dot(context_embedding, label_emb)
+                        scores.append((score, m))
+                
+                if scores:
+                    # Sort by score descending
+                    scores.sort(key=lambda x: x[0], reverse=True)
+                    best_match = scores[0][1]
+                    print(f"Re-ranked '{token['text']}': Selected '{best_match.labels.get('es')}' (Score: {scores[0][0]:.4f})")
+                    matches = [best_match]
+            except Exception as e:
+                print(f"Error during re-ranking: {e}")
+
         if matches:
             picto = matches[0]
-            print(f"Token '{token['text']}' matched '{picto.labels.get('es', 'unknown')}' (ID: {picto.id})")
+            # print(f"Token '{token['text']}' matched '{picto.labels.get('es', 'unknown')}' (ID: {picto.id})")
             result_pictos.append(picto)
         else:
             print(f"Token '{token['text']}' found NO MATCH")
@@ -319,18 +369,19 @@ async def text_to_pictos(request: TextRequest):
 
 @router.post("/pictos-to-text", response_model=TextResponse)
 async def pictos_to_text(request: PictosRequest):
-    # MVP: Simple concatenation
-    words = []
+    from nlp_backend.services.nlg import NLGService
+    
+    lemmas = []
     for picto in request.pictograms:
         if 'es' in picto.labels:
-            words.append(picto.labels['es'])
+            lemmas.append(picto.labels['es'])
             
-    if not words:
+    if not lemmas:
         return {"text": ""}
         
-    # Basic formatting
-    text = " ".join(words)
-    text = text.capitalize() + "."
+    # Use NLG to generate natural sentence
+    nlg = NLGService.get_instance()
+    text = nlg.generate_sentence(lemmas)
     
     return {"text": text}
 

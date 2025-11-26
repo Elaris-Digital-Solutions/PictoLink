@@ -4,3 +4,9 @@ spacy
 thefuzz
 python-Levenshtein
 pydantic
+sentence-transformers
+faiss-cpu
+numpy
+transformers
+sentencepiece
+torch
