@@ -30,7 +30,7 @@ const Chat = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage } = useMessages(selectedContactId);
-  const { contacts } = useContacts();
+  const { contacts, loading: contactsLoading, addContact } = useContacts();
 
   // Speech hooks
   const {
@@ -215,7 +215,13 @@ const Chat = () => {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-background overflow-hidden">
-        <ChatSidebar selectedContactId={selectedContactId} onSelectContact={setSelectedContactId} />
+        <ChatSidebar
+          selectedContactId={selectedContactId}
+          onSelectContact={setSelectedContactId}
+          contacts={contacts}
+          loading={contactsLoading}
+          onAddContact={addContact}
+        />
         <div className="flex flex-col flex-1 min-w-0 relative">
           {/* Header */}
           <header className="bg-white text-foreground p-4 flex items-center justify-between shadow-sm border-b border-border flex-none z-10">

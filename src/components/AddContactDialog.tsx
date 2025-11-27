@@ -12,17 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useContacts } from "@/hooks/useContacts";
 
 interface AddContactDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onAddContact: (email: string) => Promise<void>;
 }
 
-export function AddContactDialog({ open, onOpenChange }: AddContactDialogProps) {
+export function AddContactDialog({ open, onOpenChange, onAddContact }: AddContactDialogProps) {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
-    const { addContact } = useContacts();
     const { toast } = useToast();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +49,7 @@ export function AddContactDialog({ open, onOpenChange }: AddContactDialogProps) 
 
         try {
             setLoading(true);
-            await addContact(email);
+            await onAddContact(email);
 
             toast({
                 title: "¡Contacto añadido!",

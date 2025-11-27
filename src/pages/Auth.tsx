@@ -64,6 +64,7 @@ const Auth = () => {
         toast({
           title: "¡Bienvenido!",
           description: "Has iniciado sesión correctamente",
+          duration: 1000,
         });
         navigate("/chat");
       } else {

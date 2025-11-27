@@ -16,22 +16,30 @@ import {
 } from "@/components/ui/sidebar";
 import { Search, MessageSquare, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useContacts } from "@/hooks/useContacts";
 import { AddContactDialog } from "./AddContactDialog";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import type { ContactWithUser } from "@/types/database.types";
 
 interface ChatSidebarProps {
   selectedContactId: string | null;
   onSelectContact: (contactId: string) => void;
+  contacts: ContactWithUser[];
+  loading: boolean;
+  onAddContact: (email: string) => Promise<void>;
 }
 
-export function ChatSidebar({ selectedContactId, onSelectContact }: ChatSidebarProps) {
+export function ChatSidebar({
+  selectedContactId,
+  onSelectContact,
+  contacts,
+  loading,
+  onAddContact
+}: ChatSidebarProps) {
   const { user } = useAuth();
   const { state } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const [addContactOpen, setAddContactOpen] = useState(false);
-  const { contacts, loading } = useContacts();
 
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -177,7 +185,11 @@ export function ChatSidebar({ selectedContactId, onSelectContact }: ChatSidebarP
         </SidebarContent>
       </Sidebar>
 
-      <AddContactDialog open={addContactOpen} onOpenChange={setAddContactOpen} />
+      <AddContactDialog
+        open={addContactOpen}
+        onOpenChange={setAddContactOpen}
+        onAddContact={onAddContact}
+      />
     </>
   );
 }

@@ -3,6 +3,7 @@ import { Pictogram } from './pictograms';
 // In production (Netlify), set VITE_API_URL to your Hugging Face Space URL.
 // Example: VITE_API_URL=https://<USER>-<SPACE>.hf.space/api/v1
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+console.log('[API] Using API_BASE_URL:', API_BASE_URL);
 
 export async function convertTextToPictos(text: string): Promise<Pictogram[]> {
     console.log(`[API] convertTextToPictos called with text: "${text}"`);
