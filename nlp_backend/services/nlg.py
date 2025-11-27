@@ -1,5 +1,11 @@
-import torch
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+try:
+    import torch
+    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+    TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    TRANSFORMERS_AVAILABLE = False
+    print("Warning: 'torch' or 'transformers' not found. NLG model will be disabled.")
+
 from typing import List
 import os
 
@@ -10,16 +16,19 @@ class NLGService:
         self.model = None
         self.tokenizer = None
         
-        model_id = "ElarisDigitalSolutions/PictoLink"
-        print(f"Cargando modelo desde Hugging Face Hub: {model_id}")
-        
-        try:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_id)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_id)
-            print("Modelo cargado correctamente.")
-        except Exception as e:
-            print(f"Error loading model from Hub: {e}")
-            print("Using rule-based fallback.")
+        if TRANSFORMERS_AVAILABLE:
+            model_id = "ElarisDigitalSolutions/PictoLink"
+            print(f"Cargando modelo desde Hugging Face Hub: {model_id}")
+            
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+                self.model = AutoModelForSeq2SeqLM.from_pretrained(model_id)
+                print("Modelo cargado correctamente.")
+            except Exception as e:
+                print(f"Error loading model from Hub: {e}")
+                print("Using rule-based fallback.")
+        else:
+            print("Transformers library not available. Using rule-based fallback.")
 
     @classmethod
     def get_instance(cls):

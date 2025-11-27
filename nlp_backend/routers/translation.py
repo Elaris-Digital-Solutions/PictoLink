@@ -257,6 +257,7 @@ async def text_to_pictos(request: TextRequest):
 @router.post("/pictos-to-text", response_model=TextResponse)
 async def pictos_to_text(request: PictosRequest):
     from nlp_backend.services.nlg import NLGService
+    from nlp_backend.services.arasaac import ArasaacService
     
     lemmas = []
     for picto in request.pictograms:
@@ -266,7 +267,14 @@ async def pictos_to_text(request: PictosRequest):
     if not lemmas:
         return {"text": ""}
         
-    # Use NLG to generate natural sentence
+    # 1. Try ARASAAC API first (High Quality)
+    arasaac = ArasaacService.get_instance()
+    text = await arasaac.generate_phrase(lemmas)
+    
+    if text:
+        return {"text": text}
+        
+    # 2. Fallback to local NLG (Rule-based / Model)
     nlg = NLGService.get_instance()
     text = nlg.generate_sentence(lemmas)
     
