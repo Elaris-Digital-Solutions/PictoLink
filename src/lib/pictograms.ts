@@ -22,7 +22,7 @@ export const CATEGORY_ICONS: Record<string, number> = {
   'sentimientos': 35545,
   'lugares': 6964,
   'acciones': 28669,
-  'comida': 32464,
+  'comida': 4610,
   'animales': 38967,
   'transporte': 6981,
 };
