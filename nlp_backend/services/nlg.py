@@ -1,26 +1,25 @@
 import torch
-from transformers import T5ForConditionalGeneration, T5Tokenizer
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from typing import List
 import os
 
 class NLGService:
     _instance = None
     
-    def __init__(self, model_path: str = "nlp_backend/models/mt5_picto_v1"):
+    def __init__(self):
         self.model = None
         self.tokenizer = None
         
-        # Try to load fine-tuned model
-        if os.path.exists(model_path):
-            print(f"Loading fine-tuned NLG model from {model_path}...")
-            try:
-                self.tokenizer = T5Tokenizer.from_pretrained(model_path)
-                self.model = T5ForConditionalGeneration.from_pretrained(model_path)
-                print("NLG Model loaded successfully.")
-            except Exception as e:
-                print(f"Error loading model: {e}")
-        else:
-            print(f"Fine-tuned model not found at {model_path}. Using rule-based fallback.")
+        model_id = "ElarisDigitalSolutions/PictoLink"
+        print(f"Cargando modelo desde Hugging Face Hub: {model_id}")
+        
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_id)
+            print("Modelo cargado correctamente.")
+        except Exception as e:
+            print(f"Error loading model from Hub: {e}")
+            print("Using rule-based fallback.")
 
     @classmethod
     def get_instance(cls):
