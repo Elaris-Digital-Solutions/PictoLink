@@ -1,7 +1,7 @@
 {
   "¿cómo estás?": [
-    "7061",
-    "10273"
+    "22619",
+    "5465"
   ],
   "cómo estás": [
     "22619",
@@ -108,5 +108,42 @@
   ],
   "hoy": [
     "7131"
+  ],
+  "ir al baño": [
+    "2432",
+    "2430"
+  ],
+  "ir al inodoro": [
+    "2432",
+    "2430"
+  ],
+  "ir a ducharse": [
+    "2432",
+    "2370"
+  ],
+  "hola, como estas": [
+    "6009",
+    "22619",
+    "5465"
+  ],
+  "hola, cómo estás": [
+    "6009",
+    "22619",
+    "5465"
+  ],
+  "cepillarme los dientes": [
+    "6971"
+  ],
+  "cepillarse los dientes": [
+    "6971"
+  ],
+  "lavarse los dientes": [
+    "6971"
+  ],
+  "me lavo los dientes": [
+    "6971"
+  ],
+  "cepillar los dientes": [
+    "6971"
   ]
 }

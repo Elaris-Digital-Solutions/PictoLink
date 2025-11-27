@@ -23,6 +23,24 @@ class PictosRequest(BaseModel):
 class TextResponse(BaseModel):
     text: str
 
+# Load special phrases globally
+import json
+import os
+
+SPECIAL_PHRASES = {}
+try:
+    # Adjust path: routers/translation.py -> ../frases_especiales.json
+    json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frases_especiales.json')
+    if not os.path.exists(json_path):
+        # Try alternative path if __file__ is weird
+        json_path = os.path.join(os.getcwd(), 'nlp_backend', 'frases_especiales.json')
+        
+    with open(json_path, 'r', encoding='utf-8') as f:
+        SPECIAL_PHRASES = json.load(f)
+    # print(f"DEBUG: Loaded {len(SPECIAL_PHRASES)} special phrases from {json_path}")
+except Exception as e:
+    print(f"Error loading special phrases: {e}")
+
 @router.post("/text-to-pictos", response_model=PictosResponse)
 async def text_to_pictos(request: TextRequest):
     catalog = CatalogService.get_instance()
@@ -40,12 +58,15 @@ async def text_to_pictos(request: TextRequest):
         text = ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
         # Keep only alphanumeric and spaces
         text = ''.join(c for c in text if c.isalnum() or c.isspace())
+        # Collapse multiple spaces
+        text = ' '.join(text.split())
         return text.strip()
-
     # 1. Pre-process text
     doc = nlp.process_text(request.text)
     token_texts = [t['text'] for t in doc]
     token_lemmas = [t['lemma'] for t in doc]
+    
+    # print(f"DEBUG: Tokens: {token_texts}")
     
     final_pictos = []
     i = 0
@@ -104,6 +125,41 @@ async def text_to_pictos(request: TextRequest):
 
     while i < n:
         match_found = False
+        
+        # Strategy 0: Special Phrases (Highest Priority)
+        # Check for phrases starting at current position, longest first
+        max_special_gram = min(6, n - i) # Check up to 6 words for special phrases
+        
+        for k in range(max_special_gram, 0, -1):
+            phrase_tokens = token_texts[i : i+k]
+            phrase_text = " ".join(phrase_tokens)
+            normalized_phrase = normalize_text(phrase_text)
+            
+            matched_ids = None
+            
+            # Direct match (case-insensitive)
+            if phrase_text.lower() in SPECIAL_PHRASES:
+                matched_ids = SPECIAL_PHRASES[phrase_text.lower()]
+            
+            # Normalized match
+            if not matched_ids:
+                for key, ids in SPECIAL_PHRASES.items():
+                    if normalize_text(key) == normalized_phrase:
+                        matched_ids = ids
+                        break
+            
+            if matched_ids:
+                # print(f"Special phrase match: '{phrase_text}' -> IDs {matched_ids}")
+                for pid in matched_ids:
+                    picto = catalog.get_by_id(int(pid))
+                    if picto:
+                        final_pictos.append(picto)
+                i += k
+                match_found = True
+                break
+        
+        if match_found:
+            continue
         
         # Strategy 1: Longest Matching N-gram (Phrase Matching)
         max_gram = min(5, n - i)

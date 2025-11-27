@@ -161,7 +161,7 @@ const Chat = () => {
   const renderMessageContent = (content: string) => {
     // Check for compound pictograms first
     // Format: [pictograms:IDS:LABELS] or [pictograms:IDS:LABELS|GENERATED_TEXT]
-    const compoundMatch = content.match(/^\[pictograms:([\d,]+):([^|]+)(?:\|(.+))?\]$/);
+    const compoundMatch = content.match(/^\[pictograms:([\d,]+):([^|\]]+)(?:\|([^\]]*))?\]$/);
     if (compoundMatch) {
       const [, idsString, labelsString, generatedText] = compoundMatch;
       const ids = idsString.split(',').map(id => parseInt(id));
