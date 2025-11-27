@@ -80,7 +80,7 @@ export function usePictogramPreferences() {
                 .eq('user_id', userId)
                 .eq('pictogram_id', pictogram.id)
                 .eq('type', 'recent')
-                .single();
+                .maybeSingle();
 
             if (existing) {
                 // Update last_used_at

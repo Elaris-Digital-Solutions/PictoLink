@@ -44,12 +44,16 @@ export async function convertTextToPictos(text: string): Promise<Pictogram[]> {
 
 export async function convertPictosToText(pictograms: Pictogram[]): Promise<string> {
     try {
+        console.log('[API] convertPictosToText called with pictograms:', pictograms);
+        const payload = { pictograms };
+        console.log('[API] Sending payload:', JSON.stringify(payload));
+
         const response = await fetch(`${API_BASE_URL}/pictos-to-text`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ pictograms }),
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
