@@ -2,11 +2,9 @@ import { useState, useEffect } from "react";
 
 const NuestroEquipo = () => {
 	const teamImages = [
-		{ src: "/team.webp", caption: "Elaris Digital Solutions" },
 		{ src: "/fabrizio.webp", caption: "Fabrizio Bussalleu" },
 		{ src: "/colfer.webp", caption: "Alejandro Colfer" },
-		{ src: "/jorge.webp", caption: "Jorge García" },
-		{ src: "/delso.webp", caption: "Joaquín del Solar" },
+		{ src: "/jorge.webp", caption: "Jorge García" }
 	];
 
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -32,7 +30,7 @@ const NuestroEquipo = () => {
 						<div className="space-y-4 text-lg text-foreground/80 leading-relaxed">
 							<p>
 								Proyecto liderado por un equipo multidisciplinario de estudiantes apasionados por la tecnología y la inclusión social.
-								<span className="font-semibold text-foreground"> Fabrizio Bussalleu, Alejandro Colfer, Jorge García y Joaquín del Solar</span> han unido sus conocimientos para dar vida a PictoLink.
+								<span className="font-semibold text-foreground"> Fabrizio Bussalleu, Alejandro Colfer y Jorge García</span> han unido sus conocimientos para dar vida a PictoLink.
 							</p>
 
 							<p>
