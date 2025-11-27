@@ -29,7 +29,7 @@ const Chat = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage } = useMessages(selectedContactId);
+  const { messages, sendMessage } = useMessages(selectedContactId === 'local-speech' ? null : selectedContactId);
   const { contacts, loading: contactsLoading, addContact } = useContacts();
 
   // Speech hooks
