@@ -150,30 +150,6 @@ export function useSpeechSynthesis() {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'es-ES';
         utterance.rate = 1.0; // Increased slightly for faster feedback
-        utterance.pitch = 1;
-
-        // Optimized voice selection:
-        // 1. Try to use the cached voices state first
-        // 2. Fallback to getVoices() if state is empty
-        const availableVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
-
-        // Priority: es-ES > es-MX > any es
-        let selectedVoice = availableVoices.find(v => v.lang === 'es-ES');
-        if (!selectedVoice) {
-            selectedVoice = availableVoices.find(v => v.lang === 'es-MX');
-        }
-        if (!selectedVoice) {
-            selectedVoice = availableVoices.find(v => v.lang.toLowerCase().startsWith('es'));
-        }
-
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
-            console.log('Using voice:', selectedVoice.name, selectedVoice.lang);
-        } else {
-            console.warn('No Spanish voice found, using default');
-        }
-
-        utterance.onstart = () => setIsSpeaking(true);
         utterance.onend = () => setIsSpeaking(false);
         utterance.onerror = (e) => {
             console.error('Speech synthesis error:', e);
