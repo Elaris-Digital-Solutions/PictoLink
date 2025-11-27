@@ -209,6 +209,16 @@ const Chat = () => {
   };
 
   const selectedContact = contacts.find((c) => c.contact_id === selectedContactId);
+  const isLocalSpeechMode = selectedContactId === 'local-speech';
+
+  const handleLocalPictogramClick = async (pictogram: Pictogram) => {
+    try {
+      const text = pictogram.labels.es;
+      await speak(text);
+    } catch (e) {
+      console.error('Error speaking pictogram:', e);
+    }
+  };
 
   if (!user) return null;
 
@@ -232,10 +242,12 @@ const Chat = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">
-                  {selectedContact ? selectedContact.name : 'PictoLink'}
+                  {isLocalSpeechMode ? 'Mi Voz' : (selectedContact ? selectedContact.name : 'PictoLink')}
                 </h3>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  {selectedContact ? (
+                  {isLocalSpeechMode ? (
+                    'Modo de habla local'
+                  ) : selectedContact ? (
                     <>
                       <span className="w-2 h-2 rounded-full bg-green-500 inline-block" /> En línea
                     </>
@@ -248,7 +260,12 @@ const Chat = () => {
             <div className="flex items-center gap-4">
               {isSpeechSynthesisSupported && (
                 <div className="flex items-center gap-2">
-                  <Switch id="auto-read" checked={autoReadEnabled} onCheckedChange={setAutoReadEnabled} />
+                  <Switch
+                    id="auto-read"
+                    checked={isLocalSpeechMode || autoReadEnabled}
+                    onCheckedChange={isLocalSpeechMode ? undefined : setAutoReadEnabled}
+                    disabled={isLocalSpeechMode}
+                  />
                   <Label htmlFor="auto-read" className="text-sm cursor-pointer">
                     Lectura automática
                   </Label>
@@ -265,182 +282,196 @@ const Chat = () => {
             </div>
           </header>
 
-          {/* Messages */}
-          <ScrollArea className={`flex-1 p-4 ${styles.chatBackground}`}>
-            <div className={`space-y-4 max-w-4xl mx-auto pb-4 ${styles.chatContent}`}>
-              {!selectedContactId ? (
-                <div className="flex flex-col items-center justify-center h-full text-center py-20">
-                  <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Bienvenido a PictoLink</h3>
-                  <p className="text-sm text-muted-foreground max-w-md">
-                    Selecciona un contacto del sidebar para comenzar a chatear, o añade nuevos contactos para expandir tu red de comunicación.
-                  </p>
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center py-20">
-                  <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Sin mensajes aún</h3>
-                  <p className="text-sm text-muted-foreground max-w-md">
-                    Envía el primer mensaje a {selectedContact?.name} para comenzar la conversación.
-                  </p>
-                </div>
-              ) : (
-                messages.map((msg) => (
-                  <div key={msg.id} className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
-                    <div
-                      className={`max-w-[70%] rounded-2xl px-5 py-3 shadow-sm ${msg.sender_id === user.id
-                        ? 'bg-primary text-primary-foreground rounded-br-sm'
-                        : 'bg-[#FBF0ED] text-foreground rounded-bl-sm border border-orange-100'
-                        }`}
-                    >
-                      {renderMessageContent(msg.content)}
-                      <p className={`text-xs mt-1 ${msg.sender_id === user.id ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                        {formatTime(msg.created_at)}
+          {/* Main Content */}
+          {isLocalSpeechMode ? (
+            <div className="flex-1 overflow-hidden">
+              <PictogramSidebar
+                onSelectPictogram={handleLocalPictogramClick}
+                selectedPictograms={[]}
+              />
+            </div>
+          ) : (
+            <>
+              {/* Messages */}
+              <ScrollArea className={`flex-1 p-4 ${styles.chatBackground}`}>
+                <div className={`space-y-4 max-w-4xl mx-auto pb-4 ${styles.chatContent}`}>
+                  {!selectedContactId ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center py-20">
+                      <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">Bienvenido a PictoLink</h3>
+                      <p className="text-sm text-muted-foreground max-w-md">
+                        Selecciona un contacto del sidebar para comenzar a chatear, o añade nuevos contactos para expandir tu red de comunicación.
                       </p>
                     </div>
-                  </div>
-                ))
-              )}
-              <div ref={scrollRef} />
-            </div>
-          </ScrollArea>
+                  ) : messages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center py-20">
+                      <MessageSquare className="h-20 w-20 text-muted-foreground/30 mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">Sin mensajes aún</h3>
+                      <p className="text-sm text-muted-foreground max-w-md">
+                        Envía el primer mensaje a {selectedContact?.name} para comenzar la conversación.
+                      </p>
+                    </div>
+                  ) : (
+                    messages.map((msg) => (
+                      <div key={msg.id} className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
+                        <div
+                          className={`max-w-[70%] rounded-2xl px-5 py-3 shadow-sm ${msg.sender_id === user.id
+                            ? 'bg-primary text-primary-foreground rounded-br-sm'
+                            : 'bg-[#FBF0ED] text-foreground rounded-bl-sm border border-orange-100'
+                            }`}
+                        >
+                          {renderMessageContent(msg.content)}
+                          <p className={`text-xs mt-1 ${msg.sender_id === user.id ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                            {formatTime(msg.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  <div ref={scrollRef} />
+                </div>
+              </ScrollArea>
 
-          {/* Message Composition Area */}
-          <div className="bg-card border-t p-4 flex-none">
-            <div className="max-w-4xl mx-auto space-y-3">
-              {/* Selected Pictograms Display */}
-              {selectedPictograms.length > 0 && (
-                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-foreground">
-                      Mensaje con pictogramas ({selectedPictograms.length}):
-                    </span>
+              {/* Message Composition Area */}
+              <div className="bg-card border-t p-4 flex-none">
+                <div className="max-w-4xl mx-auto space-y-3">
+                  {/* Selected Pictograms Display */}
+                  {selectedPictograms.length > 0 && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-foreground">
+                          Mensaje con pictogramas ({selectedPictograms.length}):
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleClearAllPictograms}
+                          className="h-7 text-xs"
+                        >
+                          Limpiar todo
+                        </Button>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {selectedPictograms.map((picto, index) => (
+                          <div
+                            key={`${picto.id}-${index}`}
+                            className="relative group bg-white p-2 rounded-lg border border-gray-300 hover:border-primary transition-colors"
+                          >
+                            <img
+                              src={picto.image_urls.png_color}
+                              alt={picto.labels?.es || 'Pictograma'}
+                              className="w-12 h-12 object-contain"
+                            />
+                            <button
+                              onClick={() => handleRemovePictogram(picto.id)}
+                              className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                            <span className="text-xs text-center block mt-1 max-w-[60px] truncate">
+                              {picto.labels?.es}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Autocomplete Suggestions */}
+                  {suggestions.length > 0 && selectedPictograms.length === 0 && (
+                    <div className="relative">
+                      <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                        {suggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                            onClick={() => {
+                              const words = inputMessage.split(' ');
+                              words.pop();
+                              words.push(suggestion);
+                              setInputMessage(words.join(' ') + ' ');
+                              setSuggestions([]);
+                            }}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Text Input and Send Button */}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder={
+                        selectedPictograms.length > 0
+                          ? "Borra los pictogramas para escribir texto"
+                          : speechError
+                            ? speechError
+                            : selectedContactId
+                              ? isListening
+                                ? 'Escuchando...'
+                                : 'Escribe un mensaje...'
+                              : 'Selecciona un contacto primero...'
+                      }
+                      value={inputMessage}
+                      onChange={(e) => {
+                        if (selectedPictograms.length === 0) {
+                          const newVal = e.target.value;
+                          setInputMessage(newVal);
+
+                          // Debounced autocomplete
+                          const lastWord = newVal.split(' ').pop();
+                          if (lastWord && lastWord.length >= 2) {
+                            getAutocompleteSuggestions(lastWord).then(setSuggestions);
+                          } else {
+                            setSuggestions([]);
+                          }
+                        }
+                      }}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && selectedContactId) handleSendMessage();
+                      }}
+                      className="flex-1"
+                      disabled={!selectedContactId || selectedPictograms.length > 0}
+                    />
+                    {isSpeechRecognitionSupported && selectedPictograms.length === 0 && (
+                      <Button
+                        onClick={toggleVoiceRecognition}
+                        size="icon"
+                        variant={isListening ? 'default' : 'outline'}
+                        disabled={!selectedContactId}
+                        className={isListening ? 'animate-pulse' : ''}
+                      >
+                        {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                      </Button>
+                    )}
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleClearAllPictograms}
-                      className="h-7 text-xs"
+                      onClick={handleSendMessage}
+                      size="icon"
+                      disabled={
+                        !selectedContactId ||
+                        (selectedPictograms.length === 0 && !inputMessage.trim())
+                      }
                     >
-                      Limpiar todo
+                      <Send className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
-                    {selectedPictograms.map((picto, index) => (
-                      <div
-                        key={`${picto.id}-${index}`}
-                        className="relative group bg-white p-2 rounded-lg border border-gray-300 hover:border-primary transition-colors"
-                      >
-                        <img
-                          src={picto.image_urls.png_color}
-                          alt={picto.labels?.es || 'Pictograma'}
-                          className="w-12 h-12 object-contain"
-                        />
-                        <button
-                          onClick={() => handleRemovePictogram(picto.id)}
-                          className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                        <span className="text-xs text-center block mt-1 max-w-[60px] truncate">
-                          {picto.labels?.es}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
-              )}
-
-              {/* Autocomplete Suggestions */}
-              {suggestions.length > 0 && selectedPictograms.length === 0 && (
-                <div className="relative">
-                  <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                    {suggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
-                        onClick={() => {
-                          const words = inputMessage.split(' ');
-                          words.pop();
-                          words.push(suggestion);
-                          setInputMessage(words.join(' ') + ' ');
-                          setSuggestions([]);
-                        }}
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Text Input and Send Button */}
-              <div className="flex gap-2">
-                <Input
-                  placeholder={
-                    selectedPictograms.length > 0
-                      ? "Borra los pictogramas para escribir texto"
-                      : speechError
-                        ? speechError
-                        : selectedContactId
-                          ? isListening
-                            ? 'Escuchando...'
-                            : 'Escribe un mensaje...'
-                          : 'Selecciona un contacto primero...'
-                  }
-                  value={inputMessage}
-                  onChange={(e) => {
-                    if (selectedPictograms.length === 0) {
-                      const newVal = e.target.value;
-                      setInputMessage(newVal);
-
-                      // Debounced autocomplete
-                      const lastWord = newVal.split(' ').pop();
-                      if (lastWord && lastWord.length >= 2) {
-                        getAutocompleteSuggestions(lastWord).then(setSuggestions);
-                      } else {
-                        setSuggestions([]);
-                      }
-                    }
-                  }}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && selectedContactId) handleSendMessage();
-                  }}
-                  className="flex-1"
-                  disabled={!selectedContactId || selectedPictograms.length > 0}
-                />
-                {isSpeechRecognitionSupported && selectedPictograms.length === 0 && (
-                  <Button
-                    onClick={toggleVoiceRecognition}
-                    size="icon"
-                    variant={isListening ? 'default' : 'outline'}
-                    disabled={!selectedContactId}
-                    className={isListening ? 'animate-pulse' : ''}
-                  >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
-                )}
-                <Button
-                  onClick={handleSendMessage}
-                  size="icon"
-                  disabled={
-                    !selectedContactId ||
-                    (selectedPictograms.length === 0 && !inputMessage.trim())
-                  }
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
-        {/* Pictogram Sidebar (Right) */}
-        <div className="w-80 flex-shrink-0 hidden md:block">
-          <PictogramSidebar
-            onSelectPictogram={handleAddPictogram}
-            selectedPictograms={selectedPictograms}
-          />
-        </div>
+        {/* Pictogram Sidebar (Right) - Hide in local speech mode */}
+        {!isLocalSpeechMode && (
+          <div className="w-80 flex-shrink-0 hidden md:block">
+            <PictogramSidebar
+              onSelectPictogram={handleAddPictogram}
+              selectedPictograms={selectedPictograms}
+            />
+          </div>
+        )}
       </div>
     </SidebarProvider>
   );

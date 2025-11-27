@@ -143,24 +143,51 @@ export function useSpeechSynthesis() {
 
     const speak = useCallback((text: string) => {
         if (!isSupported || !text) return;
-        // Cancel any ongoing speech.
+
+        // Cancel any ongoing speech immediately to ensure responsiveness
         window.speechSynthesis.cancel();
+
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'es-ES'; // Español
-        utterance.rate = 0.9;
+        utterance.lang = 'es-ES';
+        utterance.rate = 1.0; // Increased slightly for faster feedback
         utterance.pitch = 1;
-        // Prefer a Spanish voice if available.
-        const spanishVoice = voices.find(v => v.lang.startsWith('es') || v.lang.includes('ES'));
-        if (spanishVoice) {
-            utterance.voice = spanishVoice;
+
+        // Optimized voice selection:
+        // 1. Try to use the cached voices state first
+        // 2. Fallback to getVoices() if state is empty
+        const availableVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
+
+        // Priority: es-ES > es-MX > any es
+        let selectedVoice = availableVoices.find(v => v.lang === 'es-ES');
+        if (!selectedVoice) {
+            selectedVoice = availableVoices.find(v => v.lang === 'es-MX');
         }
+        if (!selectedVoice) {
+            selectedVoice = availableVoices.find(v => v.lang.toLowerCase().startsWith('es'));
+        }
+
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            console.log('Using voice:', selectedVoice.name, selectedVoice.lang);
+        } else {
+            console.warn('No Spanish voice found, using default');
+        }
+
         utterance.onstart = () => setIsSpeaking(true);
         utterance.onend = () => setIsSpeaking(false);
         utterance.onerror = (e) => {
             console.error('Speech synthesis error:', e);
             setIsSpeaking(false);
         };
+
+        // Force immediate speak
         window.speechSynthesis.speak(utterance);
+
+        // Chrome bug workaround: sometimes speech synthesis gets stuck. 
+        // Resuming it can help kickstart it if it's paused.
+        if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+        }
     }, [isSupported, voices]);
 
     const stop = useCallback(() => {
