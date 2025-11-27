@@ -111,6 +111,39 @@ export function ChatSidebar({
           <SidebarGroup>
             {state === "expanded" && (
               <SidebarGroupLabel className="px-4 py-2 text-xs font-semibold text-muted-foreground">
+                Opciones
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => onSelectContact('local-speech')}
+                    className={`h-auto py-3 px-4 hover:bg-muted/50 cursor-pointer ${selectedContactId === 'local-speech' ? "bg-muted" : ""
+                      }`}
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <MessageSquare className="h-5 w-5 text-primary" />
+                      </div>
+                      {state === "expanded" && (
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm text-foreground truncate">
+                            Mi Voz
+                          </h3>
+                          <p className="text-xs text-muted-foreground truncate">
+                            Hablar con pictogramas
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+
+            {state === "expanded" && (
+              <SidebarGroupLabel className="px-4 py-2 text-xs font-semibold text-muted-foreground mt-4">
                 Contactos {contacts.length > 0 && `(${contacts.length})`}
               </SidebarGroupLabel>
             )}

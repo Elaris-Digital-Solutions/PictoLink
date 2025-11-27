@@ -143,24 +143,27 @@ export function useSpeechSynthesis() {
 
     const speak = useCallback((text: string) => {
         if (!isSupported || !text) return;
-        // Cancel any ongoing speech.
+
+        // Cancel any ongoing speech immediately to ensure responsiveness
         window.speechSynthesis.cancel();
+
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'es-ES'; // Español
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-        // Prefer a Spanish voice if available.
-        const spanishVoice = voices.find(v => v.lang.startsWith('es') || v.lang.includes('ES'));
-        if (spanishVoice) {
-            utterance.voice = spanishVoice;
-        }
-        utterance.onstart = () => setIsSpeaking(true);
+        utterance.lang = 'es-ES';
+        utterance.rate = 1.0; // Increased slightly for faster feedback
         utterance.onend = () => setIsSpeaking(false);
         utterance.onerror = (e) => {
             console.error('Speech synthesis error:', e);
             setIsSpeaking(false);
         };
+
+        // Force immediate speak
         window.speechSynthesis.speak(utterance);
+
+        // Chrome bug workaround: sometimes speech synthesis gets stuck. 
+        // Resuming it can help kickstart it if it's paused.
+        if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+        }
     }, [isSupported, voices]);
 
     const stop = useCallback(() => {
