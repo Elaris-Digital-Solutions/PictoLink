@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Send, LogOut, Mic, MicOff, X } from 'lucide-react';
+import { MessageSquare, Send, LogOut, Mic, MicOff, X, ChevronUp, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -26,6 +26,7 @@ const Chat = () => {
   const [autoReadEnabled, setAutoReadEnabled] = useState(false);
   const [selectedPictograms, setSelectedPictograms] = useState<Pictogram[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showMobilePictograms, setShowMobilePictograms] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -461,11 +462,40 @@ const Chat = () => {
               </div>
             </>
           )}
+          {/* Mobile Pictogram Toggle */}
+          <div className="md:hidden bg-white border-t border-border flex-none">
+            <button
+              onClick={() => setShowMobilePictograms(!showMobilePictograms)}
+              className="w-full flex items-center justify-center py-2 text-sm font-medium text-muted-foreground hover:bg-gray-50 transition-colors"
+            >
+              {showMobilePictograms ? (
+                <>
+                  <ChevronDown className="h-4 w-4 mr-2" />
+                  Ocultar pictogramas
+                </>
+              ) : (
+                <>
+                  <ChevronUp className="h-4 w-4 mr-2" />
+                  Mostrar pictogramas
+                </>
+              )}
+            </button>
+
+            {/* Mobile Pictogram Sidebar */}
+            {showMobilePictograms && (
+              <div className="h-[40vh] border-t border-border">
+                <PictogramSidebar
+                  onSelectPictogram={handleAddPictogram}
+                  selectedPictograms={selectedPictograms}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Pictogram Sidebar (Right) - Hide in local speech mode */}
+        {/* Pictogram Sidebar (Right) - Desktop */}
         {!isLocalSpeechMode && (
-          <div className="w-80 flex-shrink-0 hidden md:block">
+          <div className="w-80 flex-shrink-0 hidden md:block border-l border-border">
             <PictogramSidebar
               onSelectPictogram={handleAddPictogram}
               selectedPictograms={selectedPictograms}
