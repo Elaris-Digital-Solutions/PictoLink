@@ -14,6 +14,7 @@ export interface Pictogram {
 }
 
 export const CATEGORY_ICONS: Record<string, number> = {
+  'favoritos': 2292, // Star/Favorite icon ID
   'mas usados': 5584,
   'personas': 31807,
   'saludos': 34567,
@@ -27,7 +28,7 @@ export const CATEGORY_ICONS: Record<string, number> = {
 };
 
 export const CUSTOM_CATEGORY_DATA: Record<string, number[]> = {
-  'mas usados': [5584, 5596, 5441, 6653, 34567, 34568, 2275, 32464, 39122, 28669, 32301],
+  'mas usados': [], // Will be populated dynamically
   'personas': [31807, 6997, 38961, 38962, 38963, 38964, 38965, 38966, 38968, 38969, 38970, 38971, 38972],
   'saludos': [34567, 34568, 6554, 6556, 6555, 6653, 6724],
   'necesidades': [39122, 32464, 28669, 32465, 32466, 2275, 32467, 32468, 32469],
@@ -40,7 +41,13 @@ export const CUSTOM_CATEGORY_DATA: Record<string, number[]> = {
 };
 
 export function getPictogramCategories(): string[] {
-  return Object.keys(CATEGORY_ICONS);
+  // Ensure 'favoritos' and 'mas usados' are first
+  const keys = Object.keys(CATEGORY_ICONS);
+  const priority = ['favoritos', 'mas usados'];
+  return [
+    ...priority,
+    ...keys.filter(k => !priority.includes(k))
+  ];
 }
 
 export async function searchPictograms(query: string, lang: 'es' | 'en' = 'es'): Promise<Pictogram[]> {
