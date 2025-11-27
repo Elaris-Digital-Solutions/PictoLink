@@ -31,10 +31,8 @@ async def text_to_pictos(request: TextRequest):
     if not catalog.loaded:
         raise HTTPException(status_code=503, detail="Catalog not loaded yet")
 
-    # 0. Check for special phrases (Exact match with normalization)
-    import json
-    import os
     import unicodedata
+    import numpy as np
 
     def normalize_text(text: str) -> str:
         # Remove accents and lowercase
@@ -44,340 +42,216 @@ async def text_to_pictos(request: TextRequest):
         text = ''.join(c for c in text if c.isalnum() or c.isspace())
         return text.strip()
 
-    try:
-        # Path relative to this file: ../../frases_especiales.json
-        # But safer to find it relative to the package root
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        phrases_path = os.path.join(base_dir, "frases_especiales.json")
-        
-        if os.path.exists(phrases_path):
-            with open(phrases_path, 'r', encoding='utf-8') as f:
-                special_phrases = json.load(f)
-                
-            normalized_input = normalize_text(request.text)
-            
-            # Check for substring matches (longest first to prioritize longer phrases)
-            matched_phrase = None
-            matched_ids = None
-            
-            # Sort phrases by length (longest first) to match longer phrases first
-            sorted_phrases = sorted(special_phrases.items(), key=lambda x: len(x[0]), reverse=True)
-            
-            for phrase, picto_ids in sorted_phrases:
-                normalized_phrase = normalize_text(phrase)
-                # Check if phrase is in the input (substring match)
-                if normalized_phrase in normalized_input:
-                    print(f"Substring match found for special phrase: '{phrase}' in '{request.text}'")
-                    matched_phrase = normalized_phrase
-                    matched_ids = picto_ids
-                    break
-            
-            if matched_ids:
-                result_pictos = []
-                # Add pictograms for the matched phrase
-                for pid in matched_ids:
-                    try:
-                        pid_int = int(pid)
-                        picto = catalog.get_by_id(pid_int)
-                        if picto:
-                            result_pictos.append(picto)
-                    except ValueError:
-                        continue
-                
-                # Process remaining words (words not in the matched phrase)
-                if matched_phrase:
-                    # Remove the matched phrase from input and process remaining words
-                    remaining_text = normalized_input.replace(matched_phrase, '').strip()
-                    if remaining_text:
-                        print(f"Processing remaining text: '{remaining_text}'")
-                        # Process remaining text normally
-                        remaining_tokens = nlp.process_text(remaining_text)
-                        # Continue to normal token processing below for remaining words
-                        tokens = remaining_tokens
-                    else:
-                        # Only the special phrase, return immediately
-                        if result_pictos:
-                            return {"pictograms": result_pictos}
-                        
-                # If we have result_pictos from special phrase, we'll add them first
-                # and continue processing remaining tokens below
-                if result_pictos and not remaining_text:
-                    return {"pictograms": result_pictos}
-    except Exception as e:
-        print(f"Error checking special phrases: {e}")
+    # 1. Pre-process text
+    doc = nlp.process_text(request.text)
+    token_texts = [t['text'] for t in doc]
+    token_lemmas = [t['lemma'] for t in doc]
     
-    # Store special phrase pictograms to prepend later
-    special_phrase_pictos = result_pictos if 'result_pictos' in locals() and result_pictos else []
-        
-    # 1. Process text (lemmatize)
-    tokens = nlp.process_text(request.text)
+    final_pictos = []
+    i = 0
+    n = len(token_texts)
     
-    # Pre-compute context embedding for re-ranking
+    # Stopwords to ignore (unless part of a phrase)
+    STOPWORDS = {
+        'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas',
+        'al', 'del', 'de', 'a', 'en', 'con', 'por', 'para', 'y', 'o'
+    }
+
+    # Priority mappings (Semantic overrides & Conjugations)
+    PRIORITY_MAP = {
+        'viajar': 'viaje', 'comprar': 'compra', 'masturbar': 'masturbación',
+        'que': 'qué', 
+        'encanta': 'gustar', 'encantan': 'gustar', 'gusta': 'gustar', 'gustan': 'gustar',
+        'come': 'comer', 'comes': 'comer', 'comen': 'comer', 'comemos': 'comer',
+        'bebe': 'beber', 'bebes': 'beber', 'beben': 'beber',
+        'duerme': 'dormir', 'duermen': 'dormir', 'juega': 'jugar', 'juegan': 'jugar',
+        'quiero': 'querer', 'quieres': 'querer', 'quiere': 'querer', 'queremos': 'querer', 'quieren': 'querer',
+        'tengo': 'tener', 'tienes': 'tener', 'tiene': 'tener', 'tenemos': 'tener', 'tienen': 'tener',
+        'voy': 'ir', 'vas': 'ir', 'va': 'ir', 'vamos': 'ir', 'van': 'ir',
+        'soy': 'ser', 'eres': 'ser', 'es': 'ser', 'somos': 'ser', 'son': 'ser',
+        'estoy': 'estar', 'estás': 'estar', 'está': 'estar', 'estamos': 'estar', 'están': 'estar',
+        'lavo': 'lavar', 'lavas': 'lavar', 'lava': 'lavar', 'lavamos': 'lavar', 'lavan': 'lavar',
+        'cepillo': 'cepillar', 'cepillas': 'cepillar', 'cepilla': 'cepillar',
+        'ducho': 'duchar', 'duchas': 'duchar', 'ducha': 'duchar',
+        'baño': 'bañar', 'bañas': 'bañar', 'baña': 'bañar',
+        'visto': 'vestir', 'vistes': 'vestir', 'viste': 'vestir',
+        'pongo': 'poner', 'pones': 'poner', 'pone': 'poner',
+        'quito': 'quitar', 'quitas': 'quitar', 'quita': 'quitar',
+    }
+    
+    FALLBACK_MAP = {
+        'mi': 'mío', 'mis': 'mis', 'tu': 'tú', 'tus': 'tú', 'su': 'su', 'sus': 'su',
+        'nuestro': 'nuestro', 'nuestra': 'nuestro',
+        'yo': 'yo', 'me': 'yo', 'mí': 'yo', 'tú': 'tú', 'te': 'tú', 'ti': 'tú',
+        'él': 'él', 'lo': 'él', 'ella': 'ella', 'nosotros': 'nosotros', 'nos': 'nosotros',
+        'vosotros': 'vosotros', 'os': 'vosotros', 'ellos': 'ellos',
+        'encantar': 'gustar',
+        'quién': 'quién', 'quien': 'quién', 'cómo': 'cómo', 'como': 'cómo',
+        'cuándo': 'cuándo', 'cuando': 'cuándo', 'dónde': 'dónde', 'donde': 'dónde',
+        'cuánto': 'mucho', 'cuanto': 'mucho',
+        'por qué': 'por qué', 'porque': 'por qué',
+        'sí': 'sí', 'si': 'sí', 'no': 'no', 'pero': 'pero',
+        'muy': 'mucho', 'más': 'más',
+    }
+
+    # Context embedding for re-ranking
     context_embedding = None
     if catalog.semantic_engine:
         try:
             context_embedding = catalog.semantic_engine.get_embedding(request.text)
-        except Exception as e:
-            print(f"Error computing context embedding: {e}")
-    
-    result_pictos = []
-    
-    # 2. Map tokens to pictograms
-    
-    # Priority mappings: Semantic overrides that should ALWAYS apply
-    # (even if the base form exists in catalog)
-    PRIORITY_MAP = {
-        # Semantic shifts (verb -> noun)
-        'viajar': 'viaje',
-        'comprar': 'compra',
-        'masturbar': 'masturbación',
-        
-        # Grammar corrections (conjunction -> question word)
-        'que': 'qué',
-        
-        # Article fixes (prevent mapping to numbers/pronouns)
-        'un': 'un',        # Article, not número 'uno'
-        'una': 'una',
-        'el': 'el',        # Article, not pronoun 'él'
-        'la': 'la',        # Article, not pronoun 'ella'
-        'los': 'los',
-        'las': 'las',
-        
-        # Verb fixes (prevent fuzzy match to wrong forms)
-        # Note: 'encantar' doesn't exist in catalog, map to 'gustar' instead
-        'encanta': 'gustar',     # Map to 'gustar' (similar meaning, exists in catalog)
-        'encantan': 'gustar',
-        'gusta': 'gustar',       # Ensure correct verb form
-        'gustan': 'gustar',
-        
-        # Common verb conjugations (safety net if lemmatization fails)
-        'come': 'comer',
-        'comes': 'comer',
-        'comen': 'comer',
-        'comemos': 'comer',
-        'bebe': 'beber',
-        'bebes': 'beber',
-        'beben': 'beber',
-        'duerme': 'dormir',
-        'duermen': 'dormir',
-        'juega': 'jugar',
-        'juegan': 'jugar',
-    }
-    
-    # Fallback mappings: For words missing from catalog
-    FALLBACK_MAP = {
-        # Possessives (replaced 'nuestra' with 'nuestro' - doesn't exist in catalog)
-        'mi': 'mío', 'mis': 'mis',
-        'tu': 'tú', 'tus': 'tú',
-        'su': 'su', 'sus': 'su',
-        'nuestro': 'nuestro', 'nuestra': 'nuestro',  # 'nuestra' doesn't exist, use 'nuestro'
-        
-        # Articles removed - should be found in catalog via lemma
-        # (Removed: 'el', 'la', 'los', 'las', 'al', 'del', 'un', 'una', etc.)
-        
-        # Pronouns (removed 'la' mapping - conflicts with article)
-        # Note: 'le' and 'les' don't exist in catalog, map to 'él' as fallback
-        'yo': 'yo', 'me': 'yo', 'mí': 'yo',
-        'tú': 'tú', 'te': 'tú', 'ti': 'tú',
-        'él': 'él', 'lo': 'él',
-        'ella': 'ella',
-        'nosotros': 'nosotros', 'nos': 'nosotros',
-        'vosotros': 'vosotros', 'os': 'vosotros',
-        'ellos': 'ellos',
-        
-        # Verbs missing from catalog (map to similar verbs)
-        'encantar': 'gustar',  # 'encantar' doesn't exist, use 'gustar'
-        
-        # Question words (replaced 'cuánto' with 'mucho' - doesn't exist in catalog)
-        'quién': 'quién', 'quien': 'quién',
-        'cómo': 'cómo', 'como': 'cómo',
-        'cuándo': 'cuándo', 'cuando': 'cuándo',
-        'dónde': 'dónde', 'donde': 'dónde',
-        'cuánto': 'mucho', 'cuanto': 'mucho',  # 'cuánto' doesn't exist, use 'mucho'
-        'por qué': 'por qué', 'porque': 'por qué',
-        
-        # Adverbs/Conjunctions
-        'sí': 'sí', 'si': 'sí',
-        'no': 'no',
-        'y': 'y', 'o': 'o',
-        'pero': 'pero',
-        'muy': 'mucho',
-        'más': 'más',
-        'a': 'a', 'de': 'de', 'en': 'en', 'con': 'con', 'por': 'por', 'para': 'para',
-        
-        # Other semantic mappings (all replaced with existing terms)
-        'educar': 'educación',
-        'respirar': 'respirar',      # Changed from 'respiración' (doesn't exist)
-        'caminar': 'andar',
-        'pintar': 'pintura',
-        'limpiar': 'limpieza',
-        'vender': 'vender',          # Changed from 'venta' (doesn't exist)
-        'necesitar': 'necesitar',    # Changed from 'necesidad' (doesn't exist)
-        'odiar': 'odiar',            # Changed from 'odio' (doesn't exist)
-        'sentir': 'sentimiento',
-        'pensar': 'pensamiento',
-        'saber': 'saber',            # Changed from 'sabiduría' (doesn't exist)
-    }
+        except Exception:
+            pass
 
-    import numpy as np
-
-    for token in tokens:
-        text_lower = token['text'].lower()
+    while i < n:
+        match_found = False
+        
+        # Strategy 1: Longest Matching N-gram (Phrase Matching)
+        max_gram = min(5, n - i)
+        
+        for k in range(max_gram, 1, -1):
+            phrase_tokens = token_texts[i : i+k]
+            phrase_text = " ".join(phrase_tokens)
+            normalized_phrase = normalize_text(phrase_text)
+            
+            matches = catalog.find_by_term(normalized_phrase)
+            
+            if not matches and k > 1:
+                phrase_lemmas = token_lemmas[i : i+k]
+                lemma_phrase = " ".join(phrase_lemmas)
+                normalized_lemma_phrase = normalize_text(lemma_phrase)
+                matches = catalog.find_by_term(normalized_lemma_phrase)
+            
+            if matches:
+                print(f"Phrase match found: '{phrase_text}' -> '{matches[0].labels.get('es')}'")
+                final_pictos.append(matches[0])
+                i += k
+                match_found = True
+                break
+        
+        if match_found:
+            continue
+            
+        # Process single token
+        current_token = doc[i]
+        text_lower = current_token['text'].lower()
+        lemma_lower = current_token['lemma'].lower()
         matches = []
-            
-        # Strategy 0: Check PRIORITY_MAP for semantic overrides
+        
+        # Check Stopwords (Skip if found)
+        if text_lower in STOPWORDS:
+            print(f"Skipping stopword: '{text_lower}'")
+            i += 1
+            continue
+        
+        # Strategy 2: Priority Map
         if text_lower in PRIORITY_MAP:
-             mapped_term = PRIORITY_MAP[text_lower]
-             matches = catalog.find_by_term(mapped_term)
-             if matches:
-                 print(f"Priority mapping: '{text_lower}' -> '{mapped_term}'")
+            mapped_term = PRIORITY_MAP[text_lower]
+            matches = catalog.find_by_term(mapped_term)
+            if matches:
+                print(f"Priority mapping: '{text_lower}' -> '{mapped_term}'")
         
-        # Strategy 1: Search by lemma (spaCy knows best for conjugations!)
+        # Strategy 3: Lemma Search
         if not matches:
-            matches = catalog.find_by_term(token['lemma'])
-        
-        # Strategy 2: Search by original text if no match
-        if not matches:
-            matches = catalog.find_by_term(token['text'])
+            matches = catalog.find_by_term(lemma_lower)
             
-        # Strategy 2.5: Handle reflexive verbs (cepillarme -> cepillar + yo)
+        # Strategy 4: Original Text Search
         if not matches:
-            text = token['text'].lower()
-            reflexive_pronouns = {
-                'me': 'yo',
-                'te': 'tú', 
-                'se': 'él',
-                'nos': 'nosotros',
-                'os': 'vosotros'
-            }
+            matches = catalog.find_by_term(text_lower)
             
+        # Strategy 5: Reflexive Verbs
+        if not matches:
+            reflexive_pronouns = {'me': 'yo', 'te': 'tú', 'se': 'él', 'nos': 'nosotros', 'os': 'vosotros'}
             for suffix, pronoun in reflexive_pronouns.items():
-                if text.endswith(suffix) and len(text) > len(suffix) + 3:
-                    stem = text[:-len(suffix)]
+                if text_lower.endswith(suffix) and len(text_lower) > len(suffix) + 3:
+                    stem = text_lower[:-len(suffix)]
+                    stem_term = PRIORITY_MAP.get(stem, stem)
+                    stem_matches = catalog.find_by_term(stem_term)
                     
-                    # Check PRIORITY_MAP for stem FIRST (e.g. masturbar -> masturbación)
-                    if stem in PRIORITY_MAP:
-                        matches = catalog.find_by_term(PRIORITY_MAP[stem])
-                        if matches:
-                            print(f"Reflexive Priority mapping: '{text}' -> '{stem}' -> '{PRIORITY_MAP[stem]}'")
-                            result_pictos.append(matches[0])
-                            # Add pronoun
-                            pronoun_matches = catalog.find_by_term(pronoun)
-                            if pronoun_matches:
-                                result_pictos.append(pronoun_matches[0])
-                            matches = []  # Clear to prevent double-add
-                            break
-                            
-                    # Then check catalog for stem
-                    matches = catalog.find_by_term(stem)
-                    
-                    # If exact stem match fails, try fuzzy (handles banar -> bañar)
-                    if not matches:
-                        matches = catalog.find_fuzzy(stem, threshold=85)
-                        
-                    if matches:
-                        print(f"Reflexive match: '{text}' -> '{stem}'")
-                        result_pictos.append(matches[0])
+                    if not stem_matches:
+                         stem_matches = catalog.find_fuzzy(stem_term, threshold=85)
+                         
+                    if stem_matches:
+                        print(f"Reflexive match: '{text_lower}' -> '{stem}'")
+                        final_pictos.append(stem_matches[0])
                         # Add pronoun
                         pronoun_matches = catalog.find_by_term(pronoun)
                         if pronoun_matches:
-                            result_pictos.append(pronoun_matches[0])
-                        matches = []  # Clear to prevent double-add
+                            final_pictos.append(pronoun_matches[0])
+                        match_found = True
                         break
-            
-        # Strategy 2.6: Handle diminutives (solito -> solo, gatito -> gato, panecillo -> pan)
+            if match_found:
+                i += 1
+                continue
+
+        # Strategy 6: Diminutives
         if not matches:
-            text = token['text'].lower()
-            # Order matters: check longer suffixes first (cito before ito)
-            diminutive_rules = [
-                ('citos', ''), ('citas', ''), ('cito', ''), ('cita', ''), # amorcito -> amor
-                ('itos', 'os'), ('itas', 'as'), ('ito', 'o'), ('ita', 'a'), # gatito -> gato
-                ('illos', 'os'), ('illas', 'as'), ('illo', 'o'), ('illa', 'a'), # chiquillo -> chico
-                ('icos', 'os'), ('icas', 'as'), ('ico', 'o'), ('ica', 'a')  # perrico -> perro
+             diminutive_rules = [
+                ('citos', ''), ('citas', ''), ('cito', ''), ('cita', ''),
+                ('itos', 'os'), ('itas', 'as'), ('ito', 'o'), ('ita', 'a'),
+                ('illos', 'os'), ('illas', 'as'), ('illo', 'o'), ('illa', 'a'),
+                ('icos', 'os'), ('icas', 'as'), ('ico', 'o'), ('ica', 'a')
             ]
-            
-            for suffix, replacement in diminutive_rules:
-                if text.endswith(suffix) and len(text) > len(suffix) + 2:
-                    # Try replacement
-                    stem = text[:-len(suffix)] + replacement
+             for suffix, replacement in diminutive_rules:
+                if text_lower.endswith(suffix) and len(text_lower) > len(suffix) + 2:
+                    stem = text_lower[:-len(suffix)] + replacement
                     matches = catalog.find_by_term(stem)
                     if matches:
-                        print(f"Diminutive match: '{text}' -> '{stem}'")
+                        print(f"Diminutive match: '{text_lower}' -> '{stem}'")
                         break
                     
                     # Try just stripping suffix (sometimes works for words ending in consonant + ito)
                     if replacement != '':
-                        stem_stripped = text[:-len(suffix)]
+                        stem_stripped = text_lower[:-len(suffix)]
                         matches = catalog.find_by_term(stem_stripped)
                         if matches:
-                            print(f"Diminutive match (stripped): '{text}' -> '{stem_stripped}'")
+                            print(f"Diminutive match (stripped): '{text_lower}' -> '{stem_stripped}'")
                             break
-                            
-        # Strategy 2.7: FALLBACK_MAP for words missing in catalog
-        if not matches:
-            text = token['text'].lower()
-            if text in FALLBACK_MAP:
-                mapped_term = FALLBACK_MAP[text]
-                matches = catalog.find_by_term(mapped_term)
-                if matches:
-                    print(f"Fallback mapping: '{text}' -> '{mapped_term}'")
-            
-        # Strategy 3: Semantic Search (Fallback)
-        if not matches and catalog.semantic_engine:
-            # Only try semantic if word is significant (not a stopword or very short, unless it's a noun/verb)
-            if len(token['text']) > 2 and not token['is_stop']:
-                print(f"Trying semantic search for '{token['text']}'...")
-                semantic_matches = catalog.search_semantic(token['text'], limit=5)
-                if semantic_matches:
-                    # Filter by score? For now take top results
-                    matches = [m[0] for m in semantic_matches if m[1] > 0.4] # Threshold
-                    if matches:
-                        print(f"Semantic match: '{token['text']}' -> '{matches[0].labels.get('es')}'")
-
-        # Strategy 4: Fuzzy Search (Last resort)
-        if not matches:
-            # Only try fuzzy if the word is long enough to avoid noise
-            if len(token['text']) > 3:
-                matches = catalog.find_fuzzy(token['text'])
         
-        # RE-RANKING: If we have multiple matches and context, pick the best one
+        # Strategy 7: Fallback Map
+        if not matches and text_lower in FALLBACK_MAP:
+             mapped_term = FALLBACK_MAP[text_lower]
+             matches = catalog.find_by_term(mapped_term)
+             if matches:
+                 print(f"Fallback mapping: '{text_lower}' -> '{mapped_term}'")
+
+        # Strategy 8: Semantic Search
+        if not matches and catalog.semantic_engine:
+             if len(text_lower) > 2 and not current_token['is_stop']:
+                 print(f"Trying semantic search for '{text_lower}'...")
+                 semantic_matches = catalog.search_semantic(text_lower, limit=5)
+                 if semantic_matches:
+                     matches = [m[0] for m in semantic_matches if m[1] > 0.4]
+
+        # Strategy 9: Fuzzy Search (Restricted)
+        if not matches:
+            if len(text_lower) > 4:
+                matches = catalog.find_fuzzy(text_lower)
+
+        # Re-ranking
         if matches and len(matches) > 1 and context_embedding is not None:
-            try:
+             try:
                 scores = []
                 for m in matches:
-                    # Use the main label for embedding comparison
                     label = m.labels.get('es', '')
                     if label:
-                        # Try to get cached embedding first (much faster)
                         label_emb = catalog.semantic_engine.get_vector_by_id(m.id)
-                        
                         if label_emb is None:
-                            # Fallback to computing it (e.g. if index is stale or picto not indexed)
                             label_emb = catalog.semantic_engine.get_embedding(label)
-                        
-                        # Cosine similarity
                         score = np.dot(context_embedding, label_emb)
                         scores.append((score, m))
-                
                 if scores:
-                    # Sort by score descending
                     scores.sort(key=lambda x: x[0], reverse=True)
-                    best_match = scores[0][1]
-                    print(f"Re-ranked '{token['text']}': Selected '{best_match.labels.get('es')}' (Score: {scores[0][0]:.4f})")
-                    matches = [best_match]
-            except Exception as e:
-                print(f"Error during re-ranking: {e}")
+                    matches = [scores[0][1]]
+             except Exception:
+                 pass
 
         if matches:
-            picto = matches[0]
-            # print(f"Token '{token['text']}' matched '{picto.labels.get('es', 'unknown')}' (ID: {picto.id})")
-            result_pictos.append(picto)
+            final_pictos.append(matches[0])
         else:
-            print(f"Token '{token['text']}' found NO MATCH")
-    
-    # Combine special phrase pictograms with regular pictograms
-    final_pictos = special_phrase_pictos + result_pictos
-    
+            print(f"Token '{text_lower}' found NO MATCH")
+            
+        i += 1
+
     return {"pictograms": final_pictos}
 
 @router.post("/pictos-to-text", response_model=TextResponse)

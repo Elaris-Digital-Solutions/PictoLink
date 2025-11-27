@@ -1,0 +1,26 @@
+
+Testing: 'bajar las escaleras' (Exact phrase match)
+Result count: 1
+Labels: ['bajar las escaleras']
+PASS: Count matches
+
+Testing: 'quiero comer' (Verb conjugation (quiero -> querer))
+Result count: 2
+Labels: ['querer', 'comer']
+PASS: Count matches
+
+Testing: 'el perro' (Stopword filtering (el perro))
+Result count: 1
+Labels: ['perro']
+PASS: Count matches
+PASS: Found 'perro'
+
+Testing: 'lavarse los dientes' (Reflexive phrase)
+Result count: 3
+Labels: ['lavar', 'él', 'diente']
+WARN: Count mismatch (Expected 1, got 3)
+
+Testing: 'me lavo los dientes' (Conjugated reflexive phrase)
+Result count: 3
+Labels: ['yo', 'lavar', 'diente']
+WARN: Count mismatch (Expected 1, got 3)
